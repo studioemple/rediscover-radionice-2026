@@ -126,12 +126,13 @@ export function Workshops() {
           {/* Sticky schedule rail (desktop) — numbered steps with three clear
               states: done (ink), now (blue, raised card), upcoming (outline). */}
           <aside className="hidden lg:block">
-            <div className="sticky top-32">
-              <p className="flex items-center gap-2 pl-1 text-[13px] font-medium text-ink-soft">
+            {/* Short laptop screens: tighter rail so all workshops stay in view. */}
+            <div className="sticky top-32 [@media(max-height:860px)]:top-24">
+              <p className="flex items-center gap-2 pl-1 text-[13px] font-medium text-ink-soft [@media(max-height:860px)]:hidden">
                 <Icon name="calendar" className="size-4" />
                 {t.hero.date}
               </p>
-              <ol ref={railRef} className="relative mt-5" style={{ ["--rail-top" as never]: "0px", ["--rail-h" as never]: "0px" }}>
+              <ol ref={railRef} className="relative mt-5 [@media(max-height:860px)]:mt-0" style={{ ["--rail-top" as never]: "0px", ["--rail-h" as never]: "0px" }}>
                 <span aria-hidden className="absolute left-[15px] w-px bg-line" style={{ top: "var(--rail-top)", height: "var(--rail-h)" }} />
                 <span
                   ref={fillRef}
@@ -144,7 +145,7 @@ export function Workshops() {
                   const done = i < activeIndex;
                   return (
                     <Fragment key={w.id}>
-                      <li className="relative py-1.5">
+                      <li className="relative py-1.5 [@media(max-height:860px)]:py-0.5">
                         <button
                           type="button"
                           onClick={() => scrollToCard(w.id)}
@@ -164,7 +165,7 @@ export function Workshops() {
                             {String(i + 1).padStart(2, "0")}
                           </span>
                           <span
-                            className={`min-w-0 flex-1 rounded-2xl border px-4 py-3 transition-all duration-500 ease-premium ${
+                            className={`min-w-0 flex-1 rounded-2xl border px-4 py-3 [@media(max-height:860px)]:py-2 transition-all duration-500 ease-premium ${
                               on
                                 ? "border-ink/[0.07] bg-paper-pure shadow-[0_16px_36px_-22px_rgba(10,10,15,0.3)]"
                                 : "border-transparent group-hover:bg-paper-pure/60"
@@ -190,7 +191,7 @@ export function Workshops() {
                         </button>
                       </li>
                       {w.id === BREAK.after && (
-                        <li className="relative flex items-center gap-4 py-2" aria-label={`${BREAK.start} – ${BREAK.end} ${t.schedule.coffee}`}>
+                        <li className="relative flex items-center gap-4 py-2 [@media(max-height:860px)]:py-0.5" aria-label={`${BREAK.start} – ${BREAK.end} ${t.schedule.coffee}`}>
                           <span className="relative z-10 grid size-8 shrink-0 place-items-center">
                             <span className="grid size-6 place-items-center rounded-full border border-line bg-paper text-ink-muted">
                               <Icon name="cup" className="size-3.5" />

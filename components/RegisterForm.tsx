@@ -173,7 +173,7 @@ export function RegisterForm() {
                               {w.start} – {w.end}
                             </span>
                           </span>
-                          <img src={w.logo} alt="" className={`h-4 w-auto max-w-[72px] object-contain opacity-80 ${w.logoInk ? "logo-ink" : ""} ${w.id === "seyfor" ? "!h-6" : ""}`} />
+                          <img src={w.logo} alt="" className={`w-auto max-w-[96px] object-contain opacity-80 ${w.chipLogoClass} ${w.logoInk ? "logo-ink" : ""}`} />
                         </label>
                       );
                     })}

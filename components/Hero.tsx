@@ -138,20 +138,20 @@ function Orbit() {
   const last = WORKSHOPS[WORKSHOPS.length - 1].end;
 
   return (
-    <div className="orbit relative mx-auto aspect-square w-[min(86vw,540px)]">
+    <div className="orbit relative mx-auto aspect-square w-[min(92vw,560px)]">
       {/* Plain concentric circles; a small blue dot travels the outer one. */}
       <span aria-hidden className="absolute inset-[2%] rounded-full border border-line" />
       <span aria-hidden className="orbit-mark absolute inset-[2%] rounded-full">
         <span className="absolute left-1/2 top-0 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue shadow-[0_0_0_5px_rgba(28,157,217,0.14)]" />
       </span>
       <span aria-hidden className="absolute inset-[22%] rounded-full border border-ink/[0.06]" />
-      <span aria-hidden className="absolute inset-[13%] rounded-full border border-dashed border-ink/[0.14]" />
+      <span aria-hidden className="absolute inset-[9%] rounded-full border border-dashed border-ink/[0.14]" />
       <span aria-hidden className="absolute inset-[31%] rounded-full border border-line" />
 
       <div className="absolute inset-[31.5%] grid place-items-center rounded-full bg-paper text-center">
         <div className="px-2">
           <p className="font-display text-[clamp(18px,5vw,28px)] font-semibold leading-tight tracking-[-0.03em]">
-            {t.hero.orbitTop}
+            {t.hero.orbitTop(WORKSHOPS.length)}
           </p>
           <p className="font-display mt-2 text-[clamp(11px,3vw,13px)] font-medium tabular-nums text-blue">
             {first} – {last}
@@ -161,21 +161,21 @@ function Orbit() {
 
       <div className="orbit-track absolute inset-0">
         {WORKSHOPS.map((w, i) => (
-          <div key={w.id} className="absolute inset-0" style={{ transform: `rotate(${i * 90 - 45}deg)` }}>
+          <div key={w.id} className="absolute inset-0" style={{ transform: `rotate(${(i * 360) / WORKSHOPS.length}deg)` }}>
             <a
               href={`#ws-${w.id}`}
               aria-label={`${w.name} ${w.start}`}
-              className="orbit-anchor focus-ring absolute left-1/2 top-[13%] block"
-              style={{ transform: `translate(-50%, -50%) rotate(${45 - i * 90}deg)` }}
+              className="orbit-anchor focus-ring absolute left-1/2 top-[9%] block"
+              style={{ transform: `translate(-50%, -50%) rotate(${(-i * 360) / WORKSHOPS.length}deg)` }}
             >
               <span className="orbit-upright block">
-                <span className="orbit-chip flex flex-col items-center gap-1.5 rounded-2xl border border-ink/[0.06] bg-paper-pure px-3.5 py-2.5 shadow-[0_18px_40px_-22px_rgba(10,10,15,0.35)] transition-transform duration-300 ease-premium hover:scale-110 sm:px-5 sm:py-3.5">
+                <span className="orbit-chip flex flex-col items-center gap-1.5 rounded-xl border border-ink/[0.06] bg-paper-pure px-2.5 py-2 shadow-[0_18px_40px_-22px_rgba(10,10,15,0.35)] transition-transform duration-300 ease-premium hover:scale-110 sm:rounded-2xl sm:px-4 sm:py-3">
                   <img
                     src={w.logo}
                     alt=""
-                    className={`h-3.5 w-auto sm:h-[18px] ${w.logoInk ? "logo-ink" : ""} ${w.id === "seyfor" ? "!h-5 sm:!h-6" : ""}`}
+                    className={`w-auto ${w.chipLogoClass} ${w.logoInk ? "logo-ink" : ""}`}
                   />
-                  <span className="font-display text-[10px] font-medium tabular-nums text-ink-soft sm:text-[11px]">{w.start}</span>
+                  <span className="font-display hidden text-[11px] font-medium tabular-nums text-ink-soft sm:block">{w.start}</span>
                 </span>
               </span>
             </a>
@@ -192,6 +192,9 @@ function Orbit() {
         .orbit:focus-within .orbit-track,
         .orbit:focus-within .orbit-upright { animation-play-state: paused; }
         @keyframes orbitSpin { to { transform: rotate(360deg); } }
+        /* Very narrow phones: shrink the chips a touch so 7 never collide.
+           (\`scale\` composes with the hover transform instead of replacing it.) */
+        @media (max-width: 359px) { .orbit-chip { scale: 0.86; } }
         @media (prefers-reduced-motion: reduce) {
           .orbit-mark, .orbit-track, .orbit-upright { animation: none; }
         }

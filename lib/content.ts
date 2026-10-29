@@ -20,7 +20,7 @@ export const PRIVACY_URL = "https://rediscover.rentl.io/en/privacy-policy";
 export const CONTACT_EMAIL = "rediscover@rentl.io";
 
 /* ───────── Workshops ───────── */
-export type WorkshopId = "rentlio" | "worldline" | "seyfor" | "phobs";
+export type WorkshopId = "rentlio" | "worldline" | "seyfor" | "phobs" | "smartness" | "lighthouse" | "dell";
 
 const LOREM_TITLE = "Lorem ipsum dolor sit amet, consectetur adipiscing";
 const LOREM_BODY =
@@ -34,6 +34,8 @@ export type Workshop = {
   logoClass: string;
   /** PNG partner logos are white artwork → rendered in ink via CSS filter. */
   logoInk?: boolean;
+  /** Logo size inside the small hero-orbit chips and the form options. */
+  chipLogoClass: string;
   start: string;
   end: string;
   minutes: number;
@@ -49,6 +51,7 @@ export const WORKSHOPS: Workshop[] = [
     name: "Rentlio Pro",
     logo: "/rentlio-logo.svg",
     logoClass: "h-7 lg:h-8",
+    chipLogoClass: "h-3 sm:h-4",
     start: "09:15",
     end: "10:30",
     minutes: 75,
@@ -65,6 +68,7 @@ export const WORKSHOPS: Workshop[] = [
     logo: "/partners/worldline.png",
     logoClass: "h-[18px] lg:h-5",
     logoInk: true,
+    chipLogoClass: "h-2.5 sm:h-3.5",
     start: "10:45",
     end: "11:15",
     minutes: 30,
@@ -77,6 +81,7 @@ export const WORKSHOPS: Workshop[] = [
     logo: "/partners/seyfor.png",
     logoClass: "h-8 lg:h-9",
     logoInk: true,
+    chipLogoClass: "h-4 sm:h-5",
     start: "11:15",
     end: "11:45",
     minutes: 30,
@@ -89,8 +94,48 @@ export const WORKSHOPS: Workshop[] = [
     logo: "/partners/phobs.svg",
     logoClass: "h-[22px] lg:h-6",
     logoInk: true,
+    chipLogoClass: "h-3 sm:h-4",
     start: "11:45",
     end: "12:15",
+    minutes: 30,
+    title: LOREM_TITLE,
+    body: LOREM_BODY,
+  },
+  // ─── Added later; times are placeholders for ordering (to be corrected) ───
+  {
+    id: "smartness",
+    name: "Smartness",
+    logo: "/partners/smartness.svg",
+    logoClass: "h-6 lg:h-7",
+    chipLogoClass: "h-3 sm:h-4",
+    start: "12:15",
+    end: "12:45",
+    minutes: 30,
+    title: LOREM_TITLE,
+    body: LOREM_BODY,
+  },
+  {
+    id: "lighthouse",
+    name: "Lighthouse",
+    logo: "/partners/lighthouse.svg",
+    logoClass: "h-6 lg:h-7",
+    logoInk: true,
+    chipLogoClass: "h-3 sm:h-4",
+    start: "12:45",
+    end: "13:15",
+    minutes: 30,
+    title: LOREM_TITLE,
+    body: LOREM_BODY,
+  },
+  {
+    id: "dell",
+    name: "Dell & ComTel",
+    logo: "/partners/dell-comtel.svg",
+    logoClass: "h-[15px] lg:h-[18px]",
+    logoInk: true,
+    chipLogoClass: "h-2 sm:h-[13px]",
+    start: "13:15",
+    end: "13:45",
     minutes: 30,
     title: LOREM_TITLE,
     body: LOREM_BODY,
@@ -113,7 +158,7 @@ export type Dict = {
     seats: string;
     cta: string;
     scheduleLink: string;
-    orbitTop: string;
+    orbitTop: (n: number) => string;
   };
   schedule: {
     eyebrow: string;
@@ -171,12 +216,12 @@ const hr: Dict = {
     seats: "Ograničen broj mjesta",
     cta: "Prijavite se",
     scheduleLink: "Pogledajte raspored",
-    orbitTop: "4 radionice",
+    orbitTop: (n) => `${n} ${n % 10 >= 2 && n % 10 <= 4 && !(n % 100 >= 12 && n % 100 <= 14) ? "radionice" : "radionica"}`,
   },
   schedule: {
     eyebrow: "Raspored",
     title: "Što možete očekivati od radionica?",
-    body: "Četiri radionice, jedna za drugom. Odaberite one koje vas zanimaju ili ostanite do kraja.",
+    body: "Radionice se održavaju jedna za drugom. Odaberite one koje vas zanimaju ili ostanite do kraja.",
     coffee: "Pauza za kavu",
     minutes: "min",
     until: "do",
@@ -234,12 +279,12 @@ const en: Dict = {
     seats: "Limited seats",
     cta: "Register",
     scheduleLink: "See the schedule",
-    orbitTop: "4 workshops",
+    orbitTop: (n) => `${n} workshop${n === 1 ? "" : "s"}`,
   },
   schedule: {
     eyebrow: "Schedule",
     title: "What to expect from the workshops?",
-    body: "Four workshops, back to back. Pick the ones that interest you or stay for the whole morning.",
+    body: "Workshops run back to back. Pick the ones that interest you or stay until the end.",
     coffee: "Coffee break",
     minutes: "min",
     until: "until",
@@ -297,12 +342,12 @@ const sl: Dict = {
     seats: "Omejeno število mest",
     cta: "Prijavite se",
     scheduleLink: "Oglejte si urnik",
-    orbitTop: "4 delavnice",
+    orbitTop: (n) => `${n} ${n === 1 ? "delavnica" : n === 2 ? "delavnici" : n <= 4 ? "delavnice" : "delavnic"}`,
   },
   schedule: {
     eyebrow: "Urnik",
     title: "Kaj lahko pričakujete od delavnic?",
-    body: "Štiri delavnice, ena za drugo. Izberite tiste, ki vas zanimajo, ali ostanite do konca.",
+    body: "Delavnice potekajo ena za drugo. Izberite tiste, ki vas zanimajo, ali ostanite do konca.",
     coffee: "Odmor za kavo",
     minutes: "min",
     until: "do",
