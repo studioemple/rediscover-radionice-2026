@@ -114,7 +114,6 @@ export type Dict = {
     cta: string;
     scheduleLink: string;
     orbitTop: string;
-    orbitBottom: string;
   };
   schedule: {
     eyebrow: string;
@@ -122,6 +121,7 @@ export type Dict = {
     body: string;
     coffee: string;
     minutes: string;
+    until: string;
     register: string;
     programLabel: string;
     program: { intro: string; deepdive: string };
@@ -172,7 +172,6 @@ const hr: Dict = {
     cta: "Prijavite se",
     scheduleLink: "Pogledajte raspored",
     orbitTop: "4 radionice",
-    orbitBottom: "jedno jutro",
   },
   schedule: {
     eyebrow: "Raspored",
@@ -180,6 +179,7 @@ const hr: Dict = {
     body: "Četiri radionice, jedna za drugom. Odaberite one koje vas zanimaju ili ostanite do kraja.",
     coffee: "Pauza za kavu",
     minutes: "min",
+    until: "do",
     register: "Prijavite se",
     programLabel: "Program",
     program: { intro: "High level intro", deepdive: "Product deep dive" },
@@ -235,7 +235,6 @@ const en: Dict = {
     cta: "Register",
     scheduleLink: "See the schedule",
     orbitTop: "4 workshops",
-    orbitBottom: "one morning",
   },
   schedule: {
     eyebrow: "Schedule",
@@ -243,6 +242,7 @@ const en: Dict = {
     body: "Four workshops, back to back. Pick the ones that interest you or stay for the whole morning.",
     coffee: "Coffee break",
     minutes: "min",
+    until: "until",
     register: "Register",
     programLabel: "Program",
     program: { intro: "High level intro", deepdive: "Product deep dive" },
@@ -298,7 +298,6 @@ const sl: Dict = {
     cta: "Prijavite se",
     scheduleLink: "Oglejte si urnik",
     orbitTop: "4 delavnice",
-    orbitBottom: "eno dopoldne",
   },
   schedule: {
     eyebrow: "Urnik",
@@ -306,6 +305,7 @@ const sl: Dict = {
     body: "Štiri delavnice, ena za drugo. Izberite tiste, ki vas zanimajo, ali ostanite do konca.",
     coffee: "Odmor za kavo",
     minutes: "min",
+    until: "do",
     register: "Prijavite se",
     programLabel: "Program",
     program: { intro: "High level intro", deepdive: "Product deep dive" },

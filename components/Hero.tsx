@@ -139,7 +139,12 @@ function Orbit() {
 
   return (
     <div className="orbit relative mx-auto aspect-square w-[min(86vw,540px)]">
-      <img src="/rentlio-circle.svg" alt="" aria-hidden className="orbit-mark absolute inset-[2%] h-[96%] w-[96%] object-contain" />
+      {/* Plain concentric circles; a small blue dot travels the outer one. */}
+      <span aria-hidden className="absolute inset-[2%] rounded-full border border-line" />
+      <span aria-hidden className="orbit-mark absolute inset-[2%] rounded-full">
+        <span className="absolute left-1/2 top-0 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue shadow-[0_0_0_5px_rgba(28,157,217,0.14)]" />
+      </span>
+      <span aria-hidden className="absolute inset-[22%] rounded-full border border-ink/[0.06]" />
       <span aria-hidden className="absolute inset-[13%] rounded-full border border-dashed border-ink/[0.14]" />
       <span aria-hidden className="absolute inset-[31%] rounded-full border border-line" />
 
@@ -148,7 +153,6 @@ function Orbit() {
           <p className="font-display text-[clamp(18px,5vw,28px)] font-semibold leading-tight tracking-[-0.03em]">
             {t.hero.orbitTop}
           </p>
-          <p className="mt-1 text-[clamp(12px,3.2vw,15px)] text-ink-soft">{t.hero.orbitBottom}</p>
           <p className="font-display mt-2 text-[clamp(11px,3vw,13px)] font-medium tabular-nums text-blue">
             {first} – {last}
           </p>
@@ -180,7 +184,7 @@ function Orbit() {
       </div>
 
       <style>{`
-        .orbit-mark { animation: orbitSpin 140s linear infinite; }
+        .orbit-mark { animation: orbitSpin 38s linear infinite; }
         .orbit-track, .orbit-upright { animation: orbitSpin 56s linear infinite; }
         .orbit-upright { animation-direction: reverse; }
         .orbit:hover .orbit-track,

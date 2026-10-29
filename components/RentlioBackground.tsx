@@ -251,6 +251,7 @@ export function RentlioBackground({
           return (
             <div
               key={`c-${i}`}
+              className="rbg-circle"
               style={{
                 position: "absolute",
                 left,
@@ -283,6 +284,9 @@ export function RentlioBackground({
       <style>{`
         @media (max-width: 767px) {
           .rbg-desktop-only { display: none; }
+          /* Workshops page: the Rentlio circle marks clash with the hero
+             orbit on phones — hide them there (vertical lines stay). */
+          .rbg-circle { display: none; }
         }
         @media (prefers-reduced-motion: reduce) {
           .rbg-layer, .rbg-layer * { animation: none !important; }

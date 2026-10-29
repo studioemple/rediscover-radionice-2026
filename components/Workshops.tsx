@@ -20,6 +20,7 @@ export function selectWorkshop(id: WorkshopId) {
 export function Workshops() {
   const { t, lang } = useLang();
   const [active, setActive] = useState<WorkshopId>(WORKSHOPS[0].id);
+  const activeIndex = WORKSHOPS.findIndex((w) => w.id === active);
   const cardsRef = useRef<HTMLDivElement>(null);
   const railRef = useRef<HTMLOListElement>(null);
   const fillRef = useRef<HTMLSpanElement>(null);
@@ -122,66 +123,83 @@ export function Workshops() {
         </header>
 
         <div className="mt-14 lg:mt-20 lg:grid lg:grid-cols-[280px_1fr] lg:gap-14 xl:grid-cols-[300px_1fr] xl:gap-20">
-          {/* Sticky schedule rail (desktop) */}
+          {/* Sticky schedule rail (desktop) — numbered steps with three clear
+              states: done (ink), now (blue, raised card), upcoming (outline). */}
           <aside className="hidden lg:block">
             <div className="sticky top-32">
-              <ol ref={railRef} className="relative" style={{ ["--rail-top" as never]: "0px", ["--rail-h" as never]: "0px" }}>
-                <span aria-hidden className="absolute left-[7px] w-px bg-line" style={{ top: "var(--rail-top)", height: "var(--rail-h)" }} />
+              <p className="flex items-center gap-2 pl-1 text-[13px] font-medium text-ink-soft">
+                <Icon name="calendar" className="size-4" />
+                {t.hero.date}
+              </p>
+              <ol ref={railRef} className="relative mt-5" style={{ ["--rail-top" as never]: "0px", ["--rail-h" as never]: "0px" }}>
+                <span aria-hidden className="absolute left-[15px] w-px bg-line" style={{ top: "var(--rail-top)", height: "var(--rail-h)" }} />
                 <span
                   ref={fillRef}
                   aria-hidden
-                  className="absolute left-[7px] w-px origin-top bg-blue"
+                  className="absolute left-[15px] w-px origin-top bg-blue"
                   style={{ top: "var(--rail-top)", height: "var(--rail-h)", transform: "scaleY(0)" }}
                 />
-                {WORKSHOPS.map((w) => {
+                {WORKSHOPS.map((w, i) => {
                   const on = active === w.id;
+                  const done = i < activeIndex;
                   return (
                     <Fragment key={w.id}>
-                      <li>
+                      <li className="relative py-1.5">
                         <button
                           type="button"
                           onClick={() => scrollToCard(w.id)}
                           aria-current={on ? "step" : undefined}
-                          className="focus-ring group relative flex w-full items-start gap-5 rounded-lg py-4 text-left"
+                          className="focus-ring group flex w-full items-center gap-4 rounded-2xl text-left"
                         >
-                          <span className="relative mt-[7px] grid size-[15px] shrink-0 place-items-center">
-                            <span
-                              data-rail-dot
-                              className={`size-[9px] rounded-full transition-all duration-500 ease-premium ${
-                                on ? "scale-125 bg-blue shadow-[0_0_0_5px_rgba(28,157,217,0.15)]" : "bg-[#CDCDCD] group-hover:bg-ink/40"
-                              }`}
-                            />
+                          <span
+                            data-rail-dot
+                            className={`font-display relative z-10 grid size-8 shrink-0 place-items-center rounded-full text-[12px] font-semibold tabular-nums transition-all duration-500 ease-premium ${
+                              on
+                                ? "bg-blue text-white shadow-[0_0_0_6px_rgba(28,157,217,0.14)]"
+                                : done
+                                  ? "bg-ink text-paper"
+                                  : "border border-line bg-paper text-ink-muted group-hover:border-ink/30 group-hover:text-ink"
+                            }`}
+                          >
+                            {String(i + 1).padStart(2, "0")}
                           </span>
-                          <span className="min-w-0">
+                          <span
+                            className={`min-w-0 flex-1 rounded-2xl border px-4 py-3 transition-all duration-500 ease-premium ${
+                              on
+                                ? "border-ink/[0.07] bg-paper-pure shadow-[0_16px_36px_-22px_rgba(10,10,15,0.3)]"
+                                : "border-transparent group-hover:bg-paper-pure/60"
+                            }`}
+                          >
                             <span
-                              className={`font-display block text-[15px] font-medium tabular-nums transition-colors duration-500 ${
-                                on ? "text-blue" : "text-ink-muted"
-                              }`}
-                            >
-                              {w.start} – {w.end}
-                            </span>
-                            <span
-                              className={`mt-1 block text-[16px] font-medium leading-snug transition-colors duration-500 ${
-                                on ? "text-ink" : "text-ink-soft group-hover:text-ink"
+                              className={`block text-[16px] font-semibold leading-snug transition-colors duration-500 ${
+                                on || done ? "text-ink" : "text-ink-soft group-hover:text-ink"
                               }`}
                             >
                               {w.name}
                             </span>
-                            <span className="mt-0.5 block text-[13px] text-ink-muted">
-                              {w.minutes} {t.schedule.minutes}
+                            <span className="mt-1 flex items-center gap-2 text-[13px] tabular-nums">
+                              <span className={`font-display font-medium transition-colors duration-500 ${on ? "text-blue" : "text-ink-muted"}`}>
+                                {w.start} – {w.end}
+                              </span>
+                              <span className="size-[3px] rounded-full bg-ink-muted/50" aria-hidden />
+                              <span className="text-ink-muted">
+                                {w.minutes} {t.schedule.minutes}
+                              </span>
                             </span>
                           </span>
                         </button>
                       </li>
                       {w.id === BREAK.after && (
-                        <li className="flex items-start gap-5 py-3 text-ink-muted">
-                          <span className="relative mt-[5px] grid size-[15px] shrink-0 place-items-center">
-                            <span className="size-[7px] rounded-full border border-[#CDCDCD] bg-paper" />
+                        <li className="relative flex items-center gap-4 py-2" aria-label={`${BREAK.start} – ${BREAK.end} ${t.schedule.coffee}`}>
+                          <span className="relative z-10 grid size-8 shrink-0 place-items-center">
+                            <span className="grid size-6 place-items-center rounded-full border border-line bg-paper text-ink-muted">
+                              <Icon name="cup" className="size-3.5" />
+                            </span>
                           </span>
-                          <span className="flex items-center gap-2 text-[13px]">
-                            <Icon name="cup" className="size-4" />
-                            <span className="tabular-nums">{BREAK.start} – {BREAK.end}</span>
-                            <span>· {t.schedule.coffee}</span>
+                          <span className="flex items-center gap-2 px-4 text-[12.5px] text-ink-muted">
+                            <span>{t.schedule.coffee}</span>
+                            <span className="size-[3px] rounded-full bg-ink-muted/50" aria-hidden />
+                            <span className="font-display tabular-nums">{BREAK.start} – {BREAK.end}</span>
                           </span>
                         </li>
                       )}
@@ -189,14 +207,6 @@ export function Workshops() {
                   );
                 })}
               </ol>
-
-              <a
-                href="#prijava"
-                className="focus-ring group mt-8 inline-flex items-center gap-3 rounded-full bg-ink px-7 py-3.5 text-[15px] font-medium text-paper transition-all duration-300 ease-premium hover:scale-[1.02] hover:shadow-[0_20px_60px_-20px_rgba(28,157,217,0.6)]"
-              >
-                {t.schedule.register}
-                <Arrow className="transition-transform duration-300 group-hover:translate-x-1" />
-              </a>
             </div>
           </aside>
 
@@ -236,11 +246,11 @@ function WorkshopCard({ w }: { w: Workshop }) {
         <div className="grid md:grid-cols-[1fr_minmax(230px,36%)]">
           {/* Content */}
           <div className="order-2 p-6 sm:p-8 md:order-1 lg:p-10">
-            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
-              {/* Mobile already shows the logo on the stage above → desktop only. */}
+            {/* Mobile shows logo, time and duration on the stage above → desktop only. */}
+            <div className="hidden flex-wrap items-center justify-between gap-x-4 gap-y-3 md:flex">
               <img src={w.logo} alt={w.name} className={`hidden w-auto md:block ${w.logoClass} ${w.logoInk ? "logo-ink" : ""}`} />
               <div className="flex items-center gap-2">
-                <span className="font-display inline-flex items-center gap-1.5 rounded-full bg-blue/[0.08] px-3 py-1.5 text-[13px] font-medium tabular-nums text-[#147DB0]">
+                <span className="font-display hidden items-center gap-1.5 rounded-full bg-blue/[0.08] px-3 py-1.5 md:inline-flex text-[13px] font-medium tabular-nums text-[#147DB0]">
                   <Icon name="clock" className="size-3.5" />
                   {w.start} – {w.end}
                 </span>
@@ -250,7 +260,7 @@ function WorkshopCard({ w }: { w: Workshop }) {
               </div>
             </div>
 
-            <h3 className="font-display mt-6 text-[22px] font-medium leading-[1.22] tracking-[-0.02em] text-ink sm:text-[26px] lg:mt-8 lg:text-[28px]">
+            <h3 className="font-display text-[22px] md:mt-6 font-medium leading-[1.22] tracking-[-0.02em] text-ink sm:text-[26px] lg:mt-8 lg:text-[28px]">
               {w.title}
             </h3>
             <p className="mt-4 text-[15px] leading-[1.65] text-ink-soft lg:text-[16px]">{w.body}</p>
@@ -322,6 +332,7 @@ function WorkshopCard({ w }: { w: Workshop }) {
 /* Replaces last year's photos: the partner logo on a quiet hairline grid with
    a slowly turning Rentlio mark, a giant start time, and a blue glow on hover. */
 function LogoStage({ w }: { w: Workshop }) {
+  const { t } = useLang();
   return (
     <div
       aria-hidden
@@ -345,14 +356,25 @@ function LogoStage({ w }: { w: Workshop }) {
       <img
         src="/rentlio-circle.svg"
         alt=""
-        className="stage-mark absolute left-1/2 top-1/2 h-[150%] w-auto max-w-none -translate-x-1/2 -translate-y-1/2 md:h-[105%]"
+        className="stage-mark absolute left-1/2 top-1/2 hidden h-[105%] w-auto max-w-none -translate-x-1/2 -translate-y-1/2 md:block"
       />
-      <div className="absolute inset-0 grid place-items-center">
-        <span className="rounded-2xl bg-paper-pure/90 px-6 py-4 shadow-[0_24px_50px_-26px_rgba(10,10,15,0.4)] backdrop-blur-sm transition-transform duration-700 ease-premium group-hover:scale-[1.06]">
+      {/* Mobile: big start time on the left, logo chip on the right (no
+          overlap). Desktop: logo centred, giant start time bottom-left. */}
+      <div className="absolute inset-0 flex items-center justify-between gap-4 px-5 sm:px-8 md:justify-center md:px-0">
+        <span className="font-display shrink-0 leading-none md:hidden">
+          <span className="block text-[44px] font-light tracking-[-0.04em] text-blue tabular-nums sm:text-[52px]">{w.start}</span>
+          <span className="mt-2 flex items-center gap-1.5 whitespace-nowrap text-[13px] font-medium tabular-nums text-ink-soft">
+            <Icon name="clock" className="size-3.5 text-blue" />
+            {t.schedule.until} {w.end}
+            <span className="size-[3px] rounded-full bg-ink-muted/60" aria-hidden />
+            {w.minutes} {t.schedule.minutes}
+          </span>
+        </span>
+        <span className="rounded-2xl bg-paper-pure/90 px-5 py-3.5 shadow-[0_24px_50px_-26px_rgba(10,10,15,0.4)] backdrop-blur-sm transition-transform duration-700 ease-premium group-hover:scale-[1.06] md:px-6 md:py-4">
           <img src={w.logo} alt="" className={`w-auto ${w.logoClass} ${w.logoInk ? "logo-ink" : ""}`} />
         </span>
       </div>
-      <span className="font-display absolute bottom-2 left-4 text-[56px] font-light leading-none tracking-[-0.04em] text-[#1C9DD9]/[0.13] md:bottom-3 md:left-5 md:text-[72px]">
+      <span className="font-display absolute bottom-3 left-5 hidden text-[76px] font-light leading-none tracking-[-0.04em] text-[#1C9DD9]/[0.32] tabular-nums transition-colors duration-700 group-hover:text-[#1C9DD9]/50 md:block">
         {w.start}
       </span>
 
