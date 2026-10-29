@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --paper: #f3f3f3;
+  --ink: #0a0a0f;
+  --blue: #1c9dd9;
+}
+
+html {
+  background: var(--paper);
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+.font-display {
+  font-family: var(--font-sora), system-ui, sans-serif;
+}
+
+/* Section headline — same scale as the Rediscover 2026 landing page. */
+.section-headline {
+  font-family: var(--font-sora), system-ui, sans-serif;
+  font-size: clamp(2.1rem, 5.4vw, 64px);
+  font-weight: 600;
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+}
+
+/* Partner logos are delivered as white artwork — render them in ink,
+   exactly like the landing page's Partners section does. */
+.logo-ink {
+  filter: brightness(0) saturate(100%);
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+/* Anchored sections clear the sticky header. */
+[id] {
+  scroll-margin-top: 96px;
+}
