@@ -188,7 +188,6 @@ export function RegisterForm() {
                                     </span>
                                   )}
                                 </span>
-                                <img src={w.logo} alt="" className={`w-auto max-w-[96px] object-contain opacity-80 ${w.chipLogoClass} ${w.logoInk ? "logo-ink" : ""}`} />
                               </label>
                             );
                         })}
