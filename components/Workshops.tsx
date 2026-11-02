@@ -136,15 +136,7 @@ export function Workshops() {
                     <Fragment key={w.id}>
                       <WorkshopCard w={w} />
                       {w.id === BREAK.after && (
-                        <div className="ws-reveal flex items-center gap-4 text-ink-muted" role="note">
-                          <span className="h-px flex-1 bg-line" />
-                          <span className="flex items-center gap-2 text-[13px] lg:text-sm">
-                            <Icon name="cup" className="size-4" />
-                            <span className="tabular-nums">{BREAK.start} – {BREAK.end}</span>
-                            <span>· {t.schedule.coffee}</span>
-                          </span>
-                          <span className="h-px flex-1 bg-line" />
-                        </div>
+                        <CoffeeBreak />
                       )}
                     </Fragment>
                   ))}
@@ -155,6 +147,44 @@ export function Workshops() {
         </div>
       </div>
     </section>
+  );
+}
+
+/* Coffee break between the Levant cards — warm strip so it reads as a pause. */
+function CoffeeBreak() {
+  const { t } = useLang();
+  const mins = toMin(BREAK.end) - toMin(BREAK.start);
+  return (
+    <div
+      role="note"
+      className="ws-reveal flex items-center gap-4 rounded-2xl border border-[#E9CFAE] bg-[#FBF1E4] px-5 py-4 sm:gap-5 sm:px-7 sm:py-5"
+    >
+      <span className="grid size-11 shrink-0 place-items-center rounded-full bg-paper-pure text-[#9A6431] shadow-[0_8px_20px_-12px_rgba(122,78,34,0.6)] sm:size-12">
+        <Icon name="cup" className="coffee-cup size-5 sm:size-6" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="font-display block text-[17px] font-semibold leading-tight tracking-[-0.01em] text-[#5C3A17] sm:text-[20px]">
+          {t.schedule.coffee}
+        </span>
+        <span className="font-display mt-1 block text-[13px] tabular-nums text-[#8A5A2B] sm:hidden">
+          {BREAK.start} – {BREAK.end} · {mins} {t.schedule.minutes}
+        </span>
+      </span>
+      <span className="hidden items-center gap-2 sm:flex">
+        <span className="font-display inline-flex items-center gap-1.5 rounded-full bg-paper-pure/80 px-3 py-1.5 text-[13px] font-medium tabular-nums text-[#7A4E22]">
+          <Icon name="clock" className="size-3.5" />
+          {BREAK.start} – {BREAK.end}
+        </span>
+        <span className="rounded-full border border-[#E9CFAE] px-3 py-1.5 text-[13px] font-medium tabular-nums text-[#7A4E22]">
+          {mins} {t.schedule.minutes}
+        </span>
+      </span>
+      <style>{`
+        .coffee-cup { animation: coffeeTilt 3.2s ease-in-out infinite; transform-origin: 50% 80%; }
+        @keyframes coffeeTilt { 0%, 70%, 100% { transform: rotate(0deg); } 80% { transform: rotate(-8deg); } 90% { transform: rotate(5deg); } }
+        @media (prefers-reduced-motion: reduce) { .coffee-cup { animation: none; } }
+      `}</style>
+    </div>
   );
 }
 
@@ -275,15 +305,15 @@ function Timetable({ active, compact = false }: { active: WorkshopId; compact?: 
                   </button>
                   {w.id === BREAK.after && (
                     <span
-                      className="absolute inset-x-0 flex items-center justify-center gap-1 rounded-lg text-[10.5px] text-ink-muted"
+                      className="tt-block absolute inset-x-0 flex items-center gap-1.5 overflow-hidden rounded-xl border border-[#E9CFAE] bg-[#FBF1E4] px-2.5 text-[11.5px] font-semibold text-[#7A4E22]"
                       style={{
                         top: `calc(${pct(toMin(BREAK.start))}% + 2px)`,
                         height: `calc(${pct(toMin(BREAK.end)) - pct(toMin(BREAK.start))}% - 4px)`,
-                        backgroundImage: "repeating-linear-gradient(135deg, rgba(10,10,15,0.05) 0 6px, transparent 6px 12px)",
                       }}
-                      title={t.schedule.coffee}
+                      title={`${t.schedule.coffee}, ${BREAK.start} – ${BREAK.end}`}
                     >
-                      <Icon name="cup" className="size-3" />
+                      <Icon name="cup" className="coffee-cup size-3.5 shrink-0" />
+                      <span className="truncate">{t.schedule.coffee}</span>
                     </span>
                   )}
                 </Fragment>
