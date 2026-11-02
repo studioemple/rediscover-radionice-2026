@@ -135,7 +135,7 @@ export function Workshops() {
                   {list.map((w) => (
                     <Fragment key={w.id}>
                       <WorkshopCard w={w} />
-                      {w.id === BREAK.after && (
+                      {BREAK.after.includes(w.id) && (
                         <CoffeeBreak />
                       )}
                     </Fragment>
@@ -303,24 +303,27 @@ function Timetable({ active, compact = false }: { active: WorkshopId; compact?: 
                       {w.start} – {w.end}
                     </span>
                   </button>
-                  {w.id === BREAK.after && (
-                    <span
-                      className="tt-block absolute inset-x-0 flex items-center gap-1.5 overflow-hidden rounded-xl border border-[#E9CFAE] bg-[#FBF1E4] px-2.5 text-[11.5px] font-semibold text-[#7A4E22]"
-                      style={{
-                        top: `calc(${pct(toMin(BREAK.start))}% + 2px)`,
-                        height: `calc(${pct(toMin(BREAK.end)) - pct(toMin(BREAK.start))}% - 4px)`,
-                      }}
-                      title={`${t.schedule.coffee}, ${BREAK.start} – ${BREAK.end}`}
-                    >
-                      <Icon name="cup" className="coffee-cup size-3.5 shrink-0" />
-                      <span className="truncate">{t.schedule.coffee}</span>
-                    </span>
-                  )}
                 </Fragment>
               );
             })}
           </div>
         ))}
+
+        {/* Coffee break for everyone → spans both hall columns. */}
+        <div className="pointer-events-none relative" style={{ gridColumn: "2 / 4", gridRow: 1 }}>
+          <span
+            className="tt-block absolute inset-x-0 z-[5] flex items-center justify-center gap-2 overflow-hidden rounded-xl border border-[#E9CFAE] bg-[#FBF1E4] px-2.5 text-[12px] font-semibold text-[#7A4E22] shadow-[0_10px_24px_-18px_rgba(122,78,34,0.7)]"
+            style={{
+              top: `calc(${pct(toMin(BREAK.start))}% + 2px)`,
+              height: `calc(${pct(toMin(BREAK.end)) - pct(toMin(BREAK.start))}% - 4px)`,
+            }}
+            title={`${t.schedule.coffee}, ${BREAK.start} – ${BREAK.end}`}
+          >
+            <Icon name="cup" className="coffee-cup size-3.5 shrink-0" />
+            <span className="truncate">{t.schedule.coffee}</span>
+            <span className="font-display hidden font-medium tabular-nums text-[#8A5A2B] sm:inline">· {BREAK.start} – {BREAK.end}</span>
+          </span>
+        </div>
       </div>
       </div>
     </div>

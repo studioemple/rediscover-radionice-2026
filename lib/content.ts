@@ -242,8 +242,8 @@ export const WORKSHOPS: Workshop[] = [
   },
 ];
 
-/** Coffee break in Dvorana Levant, right after Rentlio Pro. */
-export const BREAK = { after: "rentlio" as WorkshopId, start: "10:30", end: "10:45" };
+/** Coffee break for all halls; shown after these workshops in the card list. */
+export const BREAK = { after: ["rentlio", "smartness"] as WorkshopId[], start: "10:30", end: "10:45" };
 
 export const TRACKS: { id: TrackId; halls: HallId[] }[] = [
   { id: "main", halls: ["levant"] },
