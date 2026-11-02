@@ -16,8 +16,8 @@ Next.js 15 · React 19 · Tailwind 3 · GSAP. Nema env varijabli.
 ## Gdje se što mijenja
 
 - **`lib/content.ts`** — sav sadržaj na jednom mjestu:
-  - `WORKSHOPS` — termini, logotipi, naslovi i opisi radionica.
-    **Naslovi i opisi su lorem ipsum** dok partneri ne dostave tekstove.
+  - `WORKSHOPS` — termini, dvorane, logotipi te naslovi i opisi radionica (`copy`, EN / HR / SLO).
+    Dell & ComTel još nema tekst (`copy` izostavljen → prikazuje se „Detalji radionice uskoro”).
   - `dictionaries` — svi tekstovi sučelja za EN / HR / SLO.
   - `DEFAULT_LANG` — zadani jezik (trenutno HR).
 - **Za potvrditi:** datum (13. 11. 2026.) i lokacija (Hotel Iadera) — postavljeni

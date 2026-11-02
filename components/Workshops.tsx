@@ -9,6 +9,7 @@ import {
   DAY_END,
   DAY_START,
   TRACKS,
+  VENUE_SHORT,
   WORKSHOPS,
   toMin,
   type TrackId,
@@ -197,21 +198,39 @@ function Timetable({ active, compact = false }: { active: WorkshopId; compact?: 
   const activeW = WORKSHOPS.find((w) => w.id === active)!;
 
   return (
-    <div data-timetable>
-      <div className="grid grid-cols-[38px_1fr_1fr] gap-x-2">
+    <div data-timetable className="overflow-hidden rounded-2xl border border-ink/10 bg-paper-pure/85 shadow-[0_30px_70px_-50px_rgba(10,10,15,0.35)] backdrop-blur-sm">
+      {/* Calendar header: the day + where. */}
+      <div className="flex items-center justify-between gap-3 border-b border-ink/[0.08] px-4 py-3">
+        <span className="font-display flex items-center gap-2 text-[13px] font-semibold tabular-nums text-ink">
+          <Icon name="calendar" className="size-4 text-blue" />
+          {t.hero.date}
+        </span>
+        <span className="flex items-center gap-1.5 text-[12px] text-ink-muted">
+          <Icon name="pin" className="size-3.5" />
+          {t.hero.venue}
+        </span>
+      </div>
+
+      {/* Column headers: one per hall group. */}
+      <div className="grid grid-cols-[38px_1fr_1fr] gap-x-2 border-b border-ink/[0.08] bg-paper/70 px-3 py-2.5">
         <span aria-hidden />
         {TRACKS.map((tr) => (
-          <p key={tr.id} className="pb-3 text-[11px] font-semibold uppercase leading-tight tracking-[0.08em] text-ink-soft">
-            {tr.halls.map((h) => t.schedule.halls[h].replace(/^(Dvorana|Dvorani)\s|\sHall$/i, "")).join(" · ")}
+          <p key={tr.id} className="font-display text-[12px] font-semibold leading-[1.25] text-ink">
+            {t.schedule.tracks[tr.id].title}
           </p>
         ))}
       </div>
 
+      <div className="px-3 py-4">
       <div
         className={`relative grid grid-cols-[38px_1fr_1fr] gap-x-2 ${
-          compact ? "h-[520px] sm:h-[560px]" : "h-[540px] [@media(max-height:860px)]:h-[430px]"
+          compact ? "h-[520px] sm:h-[560px]" : "h-[540px] [@media(max-height:860px)]:h-[440px]"
         }`}
       >
+        {/* Day columns */}
+        {TRACKS.map((tr, col) => (
+          <span key={tr.id} aria-hidden className="pointer-events-none -my-2 rounded-lg bg-ink/[0.025]" style={{ gridColumn: col + 2, gridRow: 1 }} />
+        ))}
         {/* Hour lines + labels */}
         <div aria-hidden className="pointer-events-none absolute inset-0">
           {hours.map((m) => (
@@ -231,7 +250,7 @@ function Timetable({ active, compact = false }: { active: WorkshopId; compact?: 
         </div>
 
         {TRACKS.map((tr, col) => (
-          <div key={tr.id} className="relative" style={{ gridColumn: col + 2 }}>
+          <div key={tr.id} className="relative" style={{ gridColumn: col + 2, gridRow: 1 }}>
             {byTrack(tr.id).map((w) => {
               const on = w.id === active;
               const top = pct(toMin(w.start));
@@ -250,15 +269,10 @@ function Timetable({ active, compact = false }: { active: WorkshopId; compact?: 
                     }`}
                     style={{ top: `calc(${top}% + 2px)`, height: `calc(${h}% - 4px)` }}
                   >
-                    <span className="line-clamp-2 block text-[12.5px] font-semibold leading-tight">{w.name}</span>
+                    <span className={`block text-[12.5px] font-semibold leading-tight ${w.minutes <= 30 ? "truncate" : "line-clamp-2"}`}>{w.short ?? w.name}</span>
                     <span className={`font-display mt-0.5 block truncate text-[11px] tabular-nums ${on ? "text-white/80" : "text-ink-muted"}`}>
                       {w.start} – {w.end}
                     </span>
-                    {tr.halls.length > 1 && (
-                      <span className={`mt-auto block truncate text-[10.5px] ${on ? "text-white/75" : "text-ink-muted"}`}>
-                        {t.schedule.halls[w.hall].replace(/^(Dvorana|Dvorani)\s|\sHall$/i, "")}
-                      </span>
-                    )}
                   </button>
                   {w.id === BREAK.after && (
                     <span
@@ -279,24 +293,25 @@ function Timetable({ active, compact = false }: { active: WorkshopId; compact?: 
           </div>
         ))}
       </div>
+      </div>
     </div>
   );
 }
 
 function WorkshopCard({ w }: { w: Workshop }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const copy = w.copy?.[lang];
   return (
     <article id={`ws-${w.id}`} data-ws={w.id} className="ws-reveal group relative">
       <div
         className="relative border border-ink/10 bg-paper-pure transition-[filter] duration-500"
         style={{ clipPath: CUT_CLIP }}
       >
-        <div className="grid md:grid-cols-[1fr_minmax(230px,36%)]">
+        <div className="grid md:grid-cols-[minmax(230px,36%)_1fr]">
           {/* Content */}
-          <div className="order-2 p-6 sm:p-8 md:order-1 lg:p-10">
-            {/* Mobile shows logo, time and duration on the stage above → desktop only. */}
-            <div className="hidden flex-wrap items-center justify-between gap-x-4 gap-y-3 md:flex">
-              <img src={w.logo} alt={w.name} className={`hidden w-auto md:block ${w.logoClass} ${w.logoInk ? "logo-ink" : ""}`} />
+          <div className="order-2 p-6 sm:p-8 lg:p-10">
+            {/* Mobile shows time and duration on the stage above → desktop only. */}
+            <div className="hidden flex-wrap items-center gap-x-4 gap-y-3 md:flex">
               <div className="flex items-center gap-2">
                 <span className="font-display hidden items-center gap-1.5 rounded-full bg-blue/[0.08] px-3 py-1.5 md:inline-flex text-[13px] font-medium tabular-nums text-[#147DB0]">
                   <Icon name="clock" className="size-3.5" />
@@ -308,10 +323,27 @@ function WorkshopCard({ w }: { w: Workshop }) {
               </div>
             </div>
 
-            <h3 className="font-display text-[22px] md:mt-6 font-medium leading-[1.22] tracking-[-0.02em] text-ink sm:text-[26px] lg:mt-8 lg:text-[28px]">
-              {w.title}
-            </h3>
-            <p className="mt-4 text-[15px] leading-[1.65] text-ink-soft lg:text-[16px]">{w.body}</p>
+            <p className="sr-only">{w.name}</p>
+            {copy ? (
+              <>
+                <h3 className="font-display text-[22px] font-medium leading-[1.22] tracking-[-0.02em] text-ink sm:text-[26px] md:mt-6 lg:text-[28px]">
+                  {copy.title}
+                </h3>
+                <div className="mt-4 flex flex-col gap-3 text-[15px] leading-[1.65] text-ink-soft lg:text-[16px]">
+                  {copy.body.split("\n").map((para, i) => (
+                    <p key={i}>{para}</p>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <p className="font-display flex items-center gap-3 text-[20px] font-medium leading-[1.3] tracking-[-0.01em] text-ink-muted sm:text-[22px] md:mt-6 lg:text-[24px]">
+                <span className="relative flex size-2.5 shrink-0" aria-hidden>
+                  <span className="absolute inset-0 animate-ping rounded-full bg-blue/50" />
+                  <span className="relative size-2.5 rounded-full bg-blue" />
+                </span>
+                {t.schedule.soon}
+              </p>
+            )}
 
             {w.program && (
               <div className="mt-7">
@@ -341,7 +373,7 @@ function WorkshopCard({ w }: { w: Workshop }) {
                 <span className="size-1 rounded-full bg-blue" aria-hidden />
                 <span className="inline-flex items-center gap-1.5">
                   <Icon name="pin" className="size-4" />
-                  {t.schedule.halls[w.hall]}
+                  {t.schedule.halls[w.hall]}, {VENUE_SHORT}
                 </span>
               </p>
               <button
@@ -384,7 +416,7 @@ function LogoStage({ w }: { w: Workshop }) {
   return (
     <div
       aria-hidden
-      className="relative order-1 h-36 overflow-hidden border-b border-ink/[0.08] sm:h-44 md:order-2 md:h-auto md:min-h-[300px] md:border-b-0 md:border-l"
+      className="relative order-1 h-36 overflow-hidden border-b border-ink/[0.08] sm:h-44 md:h-auto md:min-h-[300px] md:border-b-0 md:border-r"
       style={{ background: "linear-gradient(160deg, #FBFCFD 0%, #EEF4F8 100%)" }}
     >
       <div
@@ -418,8 +450,17 @@ function LogoStage({ w }: { w: Workshop }) {
             {w.minutes} {t.schedule.minutes}
           </span>
         </span>
-        <span className="rounded-2xl bg-paper-pure/90 px-5 py-3.5 shadow-[0_24px_50px_-26px_rgba(10,10,15,0.4)] backdrop-blur-sm transition-transform duration-700 ease-premium group-hover:scale-[1.06] md:px-6 md:py-4">
+        <span className="flex flex-col items-center gap-2 rounded-2xl bg-paper-pure/90 px-5 py-3.5 shadow-[0_24px_50px_-26px_rgba(10,10,15,0.4)] backdrop-blur-sm transition-transform duration-700 ease-premium group-hover:scale-[1.06] md:gap-2.5 md:px-6 md:py-4">
           <img src={w.logo} alt="" className={`w-auto ${w.logoClass} ${w.logoInk ? "logo-ink" : ""}`} />
+          {/* Joint workshop: partner × Rentlio, Rentlio a touch smaller. */}
+          {w.withRentlio && (
+            <>
+              <span className="flex items-center gap-2 text-[12px] leading-none text-ink-muted">
+                <span className="h-px w-4 bg-ink/15" />×<span className="h-px w-4 bg-ink/15" />
+              </span>
+              <img src="/rentlio-logo.svg" alt="" className="h-[18px] w-auto lg:h-5" />
+            </>
+          )}
         </span>
       </div>
       <span className="font-display absolute bottom-3 left-5 hidden text-[76px] font-light leading-none tracking-[-0.04em] text-[#1C9DD9]/[0.32] tabular-nums transition-colors duration-700 group-hover:text-[#1C9DD9]/50 md:block">

@@ -2,9 +2,9 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { useLang } from "@/components/LanguageProvider";
-import { Arrow } from "@/components/Hero";
+import { Arrow, Icon } from "@/components/Hero";
 import { CUT_CLIP } from "@/components/Workshops";
-import { PRIVACY_URL, WORKSHOPS, overlaps, type WorkshopId } from "@/lib/content";
+import { PRIVACY_URL, TRACKS, WORKSHOPS, overlaps, type WorkshopId } from "@/lib/content";
 import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
 
 type Errors = Partial<Record<"name" | "company" | "email" | "pick" | "privacy", string>>;
@@ -149,37 +149,47 @@ export function RegisterForm() {
                   </div>
                   <p id="pick-hint" className="mt-1 text-[13px] text-ink-muted">{t.form.pickHint}</p>
 
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    {WORKSHOPS.map((w) => {
-                      const on = picked.includes(w.id);
-                      return (
-                        <label
-                          key={w.id}
-                          className={`relative flex cursor-pointer items-center gap-4 rounded-2xl border p-4 transition-all duration-300 ease-premium has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-blue ${
-                            on ? "border-ink bg-ink/[0.025]" : "border-ink/[0.12] hover:border-ink/30"
-                          } ${flash === w.id ? "ring-4 ring-blue/25" : ""}`}
-                        >
-                          <input type="checkbox" className="sr-only" checked={on} onChange={() => toggle(w.id)} />
-                          <span
-                            aria-hidden
-                            className={`grid size-6 shrink-0 place-items-center rounded-full border transition-all duration-300 ${
-                              on ? "scale-100 border-blue bg-blue text-white" : "border-ink/25 bg-paper-pure text-transparent"
-                            }`}
-                          >
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M5 12.5l4.5 4.5L19 7.5" />
-                            </svg>
-                          </span>
-                          <span className="min-w-0 flex-1">
-                            <span className="block text-[15px] font-medium leading-snug text-ink">{w.name}</span>
-                            <span className="font-display mt-0.5 block text-[13px] tabular-nums text-ink-muted">
-                              {w.start} – {w.end} · {t.schedule.halls[w.hall].replace(/^(Dvorana|Dvorani)\s|\sHall$/i, "")}
-                            </span>
-                          </span>
-                          <img src={w.logo} alt="" className={`w-auto max-w-[96px] object-contain opacity-80 ${w.chipLogoClass} ${w.logoInk ? "logo-ink" : ""}`} />
-                        </label>
-                      );
-                    })}
+                  {/* Two columns, like the timetable: Levant | Tramontana & Maestral. */}
+                  <div className="mt-5 grid gap-6 md:grid-cols-2 md:gap-4">
+                    {TRACKS.map((tr) => (
+                      <div key={tr.id} className="flex flex-col gap-3">
+                        <p className="font-display flex items-center gap-1.5 border-b border-ink/[0.08] pb-2.5 text-[13px] font-semibold text-ink">
+                          <Icon name="pin" className="size-3.5 text-blue" />
+                          {t.schedule.tracks[tr.id].title}
+                        </p>
+                        {WORKSHOPS.filter((w) => w.track === tr.id).map((w) => {
+                            const on = picked.includes(w.id);
+                            return (
+                              <label
+                                key={w.id}
+                                className={`relative flex cursor-pointer items-center gap-4 rounded-2xl border p-4 transition-all duration-300 ease-premium has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-blue ${
+                                  on ? "border-ink bg-ink/[0.025]" : "border-ink/[0.12] hover:border-ink/30"
+                                } ${flash === w.id ? "ring-4 ring-blue/25" : ""}`}
+                              >
+                                <input type="checkbox" className="sr-only" checked={on} onChange={() => toggle(w.id)} />
+                                <span
+                                  aria-hidden
+                                  className={`grid size-6 shrink-0 place-items-center rounded-full border transition-all duration-300 ${
+                                    on ? "scale-100 border-blue bg-blue text-white" : "border-ink/25 bg-paper-pure text-transparent"
+                                  }`}
+                                >
+                                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M5 12.5l4.5 4.5L19 7.5" />
+                                  </svg>
+                                </span>
+                                <span className="min-w-0 flex-1">
+                                  <span className="block text-[15px] font-medium leading-snug text-ink">{w.name}</span>
+                                  <span className="font-display mt-0.5 block text-[13px] tabular-nums text-ink-muted">
+                                    {w.start} – {w.end}
+                                    {tr.halls.length > 1 && <> · {t.schedule.halls[w.hall].replace(/^(Dvorana|Dvorani)\s|\sHall$/i, "")}</>}
+                                  </span>
+                                </span>
+                                <img src={w.logo} alt="" className={`w-auto max-w-[96px] object-contain opacity-80 ${w.chipLogoClass} ${w.logoInk ? "logo-ink" : ""}`} />
+                              </label>
+                            );
+                        })}
+                      </div>
+                    ))}
                   </div>
                   <ErrorText id="pick-err" msg={show("pick")} />
                   {clashes.length > 0 && (
