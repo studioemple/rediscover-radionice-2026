@@ -354,7 +354,7 @@ const hr: Dict = {
     halls: { levant: "Dvorana Levant", tramontana: "Dvorana Tramontana", maestral: "Dvorana Maestral" },
     tracks: {
       main: { title: "Dvorana Levant", subtitle: "Rentlio Pro i rješenja partnera" },
-      parallel: { title: "Dvorane Tramontana i Maestral", subtitle: "Radionice partnera, usporedno s dvoranom Levant" },
+      parallel: { title: "Dvorane Tramontana i Maestral", subtitle: "Radionice partnera" },
     },
     parallelBadge: "Usporedno",
     soonTitle: "Naziv radionice stiže uskoro",
@@ -426,7 +426,7 @@ const en: Dict = {
     halls: { levant: "Levant Hall", tramontana: "Tramontana Hall", maestral: "Maestral Hall" },
     tracks: {
       main: { title: "Levant Hall", subtitle: "Rentlio Pro and partner solutions" },
-      parallel: { title: "Tramontana & Maestral Halls", subtitle: "Partner workshops, in parallel with Levant Hall" },
+      parallel: { title: "Tramontana & Maestral Halls", subtitle: "Partner workshops" },
     },
     parallelBadge: "Parallel",
     soonTitle: "Workshop title coming soon",
@@ -498,7 +498,7 @@ const sl: Dict = {
     halls: { levant: "Dvorana Levant", tramontana: "Dvorana Tramontana", maestral: "Dvorana Maestral" },
     tracks: {
       main: { title: "Dvorana Levant", subtitle: "Rentlio Pro in rešitve partnerjev" },
-      parallel: { title: "Dvorani Tramontana in Maestral", subtitle: "Delavnice partnerjev, vzporedno z dvorano Levant" },
+      parallel: { title: "Dvorani Tramontana in Maestral", subtitle: "Delavnice partnerjev" },
     },
     parallelBadge: "Vzporedno",
     soonTitle: "Naziv delavnice bo kmalu objavljen",
