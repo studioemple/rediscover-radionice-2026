@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useLang } from "@/components/LanguageProvider";
 import { Arrow } from "@/components/Hero";
 import { CUT_CLIP } from "@/components/Workshops";
-import { PRIVACY_URL, WORKSHOPS, type WorkshopId } from "@/lib/content";
+import { PRIVACY_URL, WORKSHOPS, overlaps, type WorkshopId } from "@/lib/content";
 import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
 
 type Errors = Partial<Record<"name" | "company" | "email" | "pick" | "privacy", string>>;
@@ -70,6 +70,9 @@ export function RegisterForm() {
   const toggle = (id: WorkshopId) =>
     setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
   const allPicked = picked.length === WORKSHOPS.length;
+  // Parallel tracks → warn (don't block) when chosen workshops overlap.
+  const chosen = WORKSHOPS.filter((w) => picked.includes(w.id));
+  const clashes = chosen.flatMap((a, i) => chosen.slice(i + 1).filter((b) => overlaps(a, b)).map((b) => [a, b] as const));
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,7 +173,7 @@ export function RegisterForm() {
                           <span className="min-w-0 flex-1">
                             <span className="block text-[15px] font-medium leading-snug text-ink">{w.name}</span>
                             <span className="font-display mt-0.5 block text-[13px] tabular-nums text-ink-muted">
-                              {w.start} – {w.end}
+                              {w.start} – {w.end} · {t.schedule.halls[w.hall].replace(/^(Dvorana|Dvorani)\s|\sHall$/i, "")}
                             </span>
                           </span>
                           <img src={w.logo} alt="" className={`w-auto max-w-[96px] object-contain opacity-80 ${w.chipLogoClass} ${w.logoInk ? "logo-ink" : ""}`} />
@@ -179,6 +182,18 @@ export function RegisterForm() {
                     })}
                   </div>
                   <ErrorText id="pick-err" msg={show("pick")} />
+                  {clashes.length > 0 && (
+                    <p role="status" className="mt-3 flex items-start gap-2 rounded-2xl border border-[#E8B948]/40 bg-[#FFF8E6] px-4 py-3 text-[13px] leading-snug text-[#7A5A08]">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="mt-px shrink-0" aria-hidden>
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M12 7.5v5.5M12 16.5v.01" />
+                      </svg>
+                      <span>
+                        {t.form.clash}{" "}
+                        {clashes.map(([a, b]) => `${a.name} (${a.start}) / ${b.name} (${b.start})`).join(", ")}
+                      </span>
+                    </p>
+                  )}
                 </fieldset>
 
                 <div>

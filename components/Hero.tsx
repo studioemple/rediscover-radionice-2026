@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { LanguageSwitcher, useLang } from "@/components/LanguageProvider";
-import { WORKSHOPS } from "@/lib/content";
+import { DAY_END, DAY_START, WORKSHOPS } from "@/lib/content";
 import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
 
 /* ───────────────────────── Header ─────────────────────────
@@ -134,8 +134,8 @@ export function Hero() {
    (counter-rotation), the orbit pauses on hover so they're easy to click. */
 function Orbit() {
   const { t } = useLang();
-  const first = WORKSHOPS[0].start;
-  const last = WORKSHOPS[WORKSHOPS.length - 1].end;
+  const first = DAY_START;
+  const last = DAY_END;
 
   return (
     <div className="orbit relative mx-auto aspect-square w-[min(92vw,560px)]">

@@ -4,7 +4,17 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useLang } from "@/components/LanguageProvider";
 import { Arrow, Icon } from "@/components/Hero";
-import { BREAK, WORKSHOPS, type Workshop, type WorkshopId } from "@/lib/content";
+import {
+  BREAK,
+  DAY_END,
+  DAY_START,
+  TRACKS,
+  WORKSHOPS,
+  toMin,
+  type TrackId,
+  type Workshop,
+  type WorkshopId,
+} from "@/lib/content";
 import { ensureGsap, gsap, ScrollTrigger, prefersReducedMotion } from "@/lib/animations";
 
 /* Bottom-right diagonal notch — the same card cut as the landing page. */
@@ -17,42 +27,25 @@ export function selectWorkshop(id: WorkshopId) {
   document.getElementById("prijava")?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth" });
 }
 
+const scrollToCard = (id: WorkshopId) =>
+  document.getElementById(`ws-${id}`)?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
+
+const byTrack = (track: TrackId) => WORKSHOPS.filter((w) => w.track === track);
+
 export function Workshops() {
   const { t, lang } = useLang();
   const [active, setActive] = useState<WorkshopId>(WORKSHOPS[0].id);
-  const activeIndex = WORKSHOPS.findIndex((w) => w.id === active);
-  const cardsRef = useRef<HTMLDivElement>(null);
-  const railRef = useRef<HTMLOListElement>(null);
-  const fillRef = useRef<HTMLSpanElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     ensureGsap();
-    const cards = cardsRef.current;
-    const rail = railRef.current;
-    const fill = fillRef.current;
-    if (!cards || !rail || !fill) return;
-
-    // Rail line spans first → last workshop dot (measured).
-    const layout = () => {
-      const dots = rail.querySelectorAll<HTMLElement>("[data-rail-dot]");
-      if (dots.length < 2) return;
-      const top = rail.getBoundingClientRect().top;
-      const c = (el: HTMLElement) => {
-        const r = el.getBoundingClientRect();
-        return r.top + r.height / 2 - top;
-      };
-      const a = c(dots[0]);
-      const b = c(dots[dots.length - 1]);
-      rail.style.setProperty("--rail-top", `${a}px`);
-      rail.style.setProperty("--rail-h", `${b - a}px`);
-    };
-    layout();
-    ScrollTrigger.addEventListener("refreshInit", layout);
-
+    const section = sectionRef.current;
+    if (!section) return;
     const reduce = prefersReducedMotion();
+
     const ctx = gsap.context(() => {
       // Scroll-spy: the card crossing the middle of the screen is "active".
-      cards.querySelectorAll<HTMLElement>("[data-ws]").forEach((card) => {
+      section.querySelectorAll<HTMLElement>("[data-ws]").forEach((card) => {
         ScrollTrigger.create({
           trigger: card,
           start: "top 55%",
@@ -60,24 +53,9 @@ export function Workshops() {
           onToggle: (st) => st.isActive && setActive(card.dataset.ws as WorkshopId),
         });
       });
+      if (reduce) return;
 
-      if (reduce) {
-        gsap.set(fill, { scaleY: 1 });
-        return;
-      }
-
-      // Progress line fills as you move through the morning.
-      gsap.fromTo(
-        fill,
-        { scaleY: 0 },
-        {
-          scaleY: 1,
-          ease: "none",
-          scrollTrigger: { trigger: cards, start: "top 55%", end: "bottom 55%", scrub: 0.3 },
-        },
-      );
-
-      // Cards + section header rise in once.
+      // Header, timetable, track headers and cards rise in once.
       gsap.utils.toArray<HTMLElement>(".ws-reveal").forEach((el) => {
         gsap.fromTo(
           el,
@@ -92,147 +70,216 @@ export function Workshops() {
           },
         );
       });
-    }, cards.closest("section") ?? cards);
+
+      // Timetable blocks grow in along the time axis.
+      section.querySelectorAll<HTMLElement>("[data-timetable]").forEach((tt) => {
+        gsap.fromTo(
+          tt.querySelectorAll(".tt-block"),
+          { autoAlpha: 0, scaleY: 0.6 },
+          {
+            autoAlpha: 1,
+            scaleY: 1,
+            transformOrigin: "top",
+            duration: 0.8,
+            ease: "expo.out",
+            stagger: 0.06,
+            clearProps: "transform",
+            scrollTrigger: { trigger: tt, start: "top 85%", once: true },
+          },
+        );
+      });
+    }, section);
 
     let raf = 0;
     const ro = new ResizeObserver(() => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => ScrollTrigger.refresh());
     });
-    ro.observe(cards);
-    ro.observe(rail);
+    ro.observe(section);
 
     return () => {
       ro.disconnect();
       cancelAnimationFrame(raf);
-      ScrollTrigger.removeEventListener("refreshInit", layout);
       ctx.revert();
     };
   }, [lang]);
 
-  const scrollToCard = (id: WorkshopId) =>
-    document.getElementById(`ws-${id}`)?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
-
   return (
-    <section id="raspored" className="relative py-24 lg:py-40">
+    <section id="raspored" ref={sectionRef} className="relative py-24 lg:py-40">
       <div className="mx-auto max-w-[1240px] px-5 sm:px-8">
-        <header className="ws-reveal mx-auto max-w-[780px] text-center">
+        <header className="ws-reveal mx-auto max-w-[800px] text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-blue">{t.schedule.eyebrow}</p>
           <h2 className="section-headline mt-4">{t.schedule.title}</h2>
-          <p className="mx-auto mt-6 max-w-[560px] text-[17px] leading-[1.6] text-ink-soft lg:text-[19px]">{t.schedule.body}</p>
+          <p className="mx-auto mt-6 max-w-[640px] text-[17px] leading-[1.6] text-ink-soft lg:text-[19px]">{t.schedule.body}</p>
         </header>
 
-        <div className="mt-14 lg:mt-20 lg:grid lg:grid-cols-[280px_1fr] lg:gap-14 xl:grid-cols-[300px_1fr] xl:gap-20">
-          {/* Sticky schedule rail (desktop) — numbered steps with three clear
-              states: done (ink), now (blue, raised card), upcoming (outline). */}
+        {/* Mobile / tablet: the timetable sits above the cards. */}
+        <div className="ws-reveal mx-auto mt-12 max-w-[560px] lg:hidden">
+          <Timetable active={active} compact />
+        </div>
+
+        <div className="mt-14 lg:mt-20 lg:grid lg:grid-cols-[320px_1fr] lg:gap-12 xl:grid-cols-[340px_1fr] xl:gap-16">
+          {/* Desktop: sticky timetable that follows the scroll. */}
           <aside className="hidden lg:block">
-            {/* Short laptop screens: tighter rail so all workshops stay in view. */}
-            <div className="sticky top-32 [@media(max-height:860px)]:top-24">
-              <p className="flex items-center gap-2 pl-1 text-[13px] font-medium text-ink-soft [@media(max-height:860px)]:hidden">
-                <Icon name="calendar" className="size-4" />
-                {t.hero.date}
-              </p>
-              <ol ref={railRef} className="relative mt-5 [@media(max-height:860px)]:mt-0" style={{ ["--rail-top" as never]: "0px", ["--rail-h" as never]: "0px" }}>
-                <span aria-hidden className="absolute left-[15px] w-px bg-line" style={{ top: "var(--rail-top)", height: "var(--rail-h)" }} />
-                <span
-                  ref={fillRef}
-                  aria-hidden
-                  className="absolute left-[15px] w-px origin-top bg-blue"
-                  style={{ top: "var(--rail-top)", height: "var(--rail-h)", transform: "scaleY(0)" }}
-                />
-                {WORKSHOPS.map((w, i) => {
-                  const on = active === w.id;
-                  const done = i < activeIndex;
-                  return (
-                    <Fragment key={w.id}>
-                      <li className="relative py-1.5 [@media(max-height:860px)]:py-0.5">
-                        <button
-                          type="button"
-                          onClick={() => scrollToCard(w.id)}
-                          aria-current={on ? "step" : undefined}
-                          className="focus-ring group flex w-full items-center gap-4 rounded-2xl text-left"
-                        >
-                          <span
-                            data-rail-dot
-                            className={`font-display relative z-10 grid size-8 shrink-0 place-items-center rounded-full text-[12px] font-semibold tabular-nums transition-all duration-500 ease-premium ${
-                              on
-                                ? "bg-blue text-white shadow-[0_0_0_6px_rgba(28,157,217,0.14)]"
-                                : done
-                                  ? "bg-ink text-paper"
-                                  : "border border-line bg-paper text-ink-muted group-hover:border-ink/30 group-hover:text-ink"
-                            }`}
-                          >
-                            {String(i + 1).padStart(2, "0")}
-                          </span>
-                          <span
-                            className={`min-w-0 flex-1 rounded-2xl border px-4 py-3 [@media(max-height:860px)]:py-2 transition-all duration-500 ease-premium ${
-                              on
-                                ? "border-ink/[0.07] bg-paper-pure shadow-[0_16px_36px_-22px_rgba(10,10,15,0.3)]"
-                                : "border-transparent group-hover:bg-paper-pure/60"
-                            }`}
-                          >
-                            <span
-                              className={`block text-[16px] font-semibold leading-snug transition-colors duration-500 ${
-                                on || done ? "text-ink" : "text-ink-soft group-hover:text-ink"
-                              }`}
-                            >
-                              {w.name}
-                            </span>
-                            <span className="mt-1 flex items-center gap-2 text-[13px] tabular-nums">
-                              <span className={`font-display font-medium transition-colors duration-500 ${on ? "text-blue" : "text-ink-muted"}`}>
-                                {w.start} – {w.end}
-                              </span>
-                              <span className="size-[3px] rounded-full bg-ink-muted/50" aria-hidden />
-                              <span className="text-ink-muted">
-                                {w.minutes} {t.schedule.minutes}
-                              </span>
-                            </span>
-                          </span>
-                        </button>
-                      </li>
-                      {w.id === BREAK.after && (
-                        <li className="relative flex items-center gap-4 py-2 [@media(max-height:860px)]:py-0.5" aria-label={`${BREAK.start} – ${BREAK.end} ${t.schedule.coffee}`}>
-                          <span className="relative z-10 grid size-8 shrink-0 place-items-center">
-                            <span className="grid size-6 place-items-center rounded-full border border-line bg-paper text-ink-muted">
-                              <Icon name="cup" className="size-3.5" />
-                            </span>
-                          </span>
-                          <span className="flex items-center gap-2 px-4 text-[12.5px] text-ink-muted">
-                            <span>{t.schedule.coffee}</span>
-                            <span className="size-[3px] rounded-full bg-ink-muted/50" aria-hidden />
-                            <span className="font-display tabular-nums">{BREAK.start} – {BREAK.end}</span>
-                          </span>
-                        </li>
-                      )}
-                    </Fragment>
-                  );
-                })}
-              </ol>
+            <div className="sticky top-28 [@media(max-height:860px)]:top-24">
+              <Timetable active={active} />
             </div>
           </aside>
 
-          {/* Workshop cards */}
-          <div ref={cardsRef} className="flex flex-col gap-6 lg:gap-8">
-            {WORKSHOPS.map((w) => (
-              <Fragment key={w.id}>
-                <WorkshopCard w={w} />
-                {w.id === BREAK.after && (
-                  <div className="ws-reveal flex items-center gap-4 text-ink-muted" role="note">
-                    <span className="h-px flex-1 bg-line" />
-                    <span className="flex items-center gap-2 text-[13px] lg:text-sm">
-                      <Icon name="cup" className="size-4" />
-                      <span className="tabular-nums">{BREAK.start} – {BREAK.end}</span>
-                      <span>· {t.schedule.coffee}</span>
-                    </span>
-                    <span className="h-px flex-1 bg-line" />
-                  </div>
-                )}
-              </Fragment>
-            ))}
+          <div className="flex flex-col gap-14 lg:gap-20">
+            {TRACKS.map((track) => {
+              const list = byTrack(track.id);
+              return (
+                <div key={track.id} className="flex flex-col gap-6 lg:gap-8">
+                  <TrackHeader track={track.id} list={list} />
+                  {list.map((w) => (
+                    <Fragment key={w.id}>
+                      <WorkshopCard w={w} />
+                      {w.id === BREAK.after && (
+                        <div className="ws-reveal flex items-center gap-4 text-ink-muted" role="note">
+                          <span className="h-px flex-1 bg-line" />
+                          <span className="flex items-center gap-2 text-[13px] lg:text-sm">
+                            <Icon name="cup" className="size-4" />
+                            <span className="tabular-nums">{BREAK.start} – {BREAK.end}</span>
+                            <span>· {t.schedule.coffee}</span>
+                          </span>
+                          <span className="h-px flex-1 bg-line" />
+                        </div>
+                      )}
+                    </Fragment>
+                  ))}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
     </section>
+  );
+}
+
+/* Heading above each group of cards: hall(s), what's on, time span. */
+function TrackHeader({ track, list }: { track: TrackId; list: Workshop[] }) {
+  const { t } = useLang();
+  const start = list[0].start;
+  const end = list[list.length - 1].end;
+  return (
+    <div className="ws-reveal flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b border-ink/[0.1] pb-5">
+      <div>
+        <p className="flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.12em] text-blue">
+          <Icon name="pin" className="size-4" />
+          {t.schedule.tracks[track].subtitle}
+        </p>
+        <h3 className="font-display mt-2 text-[24px] font-semibold leading-tight tracking-[-0.02em] lg:text-[30px]">
+          {t.schedule.tracks[track].title}
+        </h3>
+      </div>
+      <span className="font-display inline-flex items-center gap-1.5 rounded-full border border-ink/10 bg-paper-pure px-3.5 py-1.5 text-[13px] font-medium tabular-nums text-ink">
+        <Icon name="clock" className="size-3.5 text-blue" />
+        {start} – {end}
+      </span>
+    </div>
+  );
+}
+
+/* Two-column timetable: Dvorana Levant | Tramontana & Maestral. Blocks are
+   placed on a shared time axis, so what runs in parallel sits side by side. */
+function Timetable({ active, compact = false }: { active: WorkshopId; compact?: boolean }) {
+  const { t } = useLang();
+  // Axis: round the day out to whole/half hours.
+  const from = Math.floor(toMin(DAY_START) / 30) * 30;
+  const to = Math.ceil(toMin(DAY_END) / 30) * 30;
+  const span = to - from;
+  const pct = (m: number) => ((m - from) / span) * 100;
+  const hours: number[] = [];
+  for (let m = Math.ceil(from / 60) * 60; m <= to; m += 60) hours.push(m);
+  const fmt = (m: number) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+  const activeW = WORKSHOPS.find((w) => w.id === active)!;
+
+  return (
+    <div data-timetable>
+      <div className="grid grid-cols-[38px_1fr_1fr] gap-x-2">
+        <span aria-hidden />
+        {TRACKS.map((tr) => (
+          <p key={tr.id} className="pb-3 text-[11px] font-semibold uppercase leading-tight tracking-[0.08em] text-ink-soft">
+            {tr.halls.map((h) => t.schedule.halls[h].replace(/^(Dvorana|Dvorani)\s|\sHall$/i, "")).join(" · ")}
+          </p>
+        ))}
+      </div>
+
+      <div
+        className={`relative grid grid-cols-[38px_1fr_1fr] gap-x-2 ${
+          compact ? "h-[520px] sm:h-[560px]" : "h-[540px] [@media(max-height:860px)]:h-[430px]"
+        }`}
+      >
+        {/* Hour lines + labels */}
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          {hours.map((m) => (
+            <div key={m} className="absolute inset-x-0 flex items-center gap-2" style={{ top: `${pct(m)}%` }}>
+              <span className="font-display w-[38px] -translate-y-1/2 text-[11px] font-medium tabular-nums text-ink-muted">{fmt(m)}</span>
+              <span className="h-px flex-1 -translate-y-1/2 border-t border-dashed border-ink/[0.12]" />
+            </div>
+          ))}
+          {/* Playhead: start time of the workshop you're reading. */}
+          <div
+            className="absolute inset-x-0 flex items-center transition-[top] duration-700 ease-premium"
+            style={{ top: `${pct(toMin(activeW.start))}%` }}
+          >
+            <span className="ml-[30px] size-2 -translate-y-1/2 rounded-full bg-blue" />
+            <span className="h-px flex-1 -translate-y-1/2 bg-blue/40" />
+          </div>
+        </div>
+
+        {TRACKS.map((tr, col) => (
+          <div key={tr.id} className="relative" style={{ gridColumn: col + 2 }}>
+            {byTrack(tr.id).map((w) => {
+              const on = w.id === active;
+              const top = pct(toMin(w.start));
+              const h = pct(toMin(w.end)) - top;
+              return (
+                <Fragment key={w.id}>
+                  <button
+                    type="button"
+                    onClick={() => scrollToCard(w.id)}
+                    aria-current={on ? "step" : undefined}
+                    aria-label={`${w.name}, ${w.start} – ${w.end}, ${t.schedule.halls[w.hall]}`}
+                    className={`tt-block focus-ring group absolute inset-x-0 flex flex-col overflow-hidden rounded-xl border px-2.5 py-2 text-left transition-all duration-500 ease-premium ${
+                      on
+                        ? "z-10 border-blue bg-blue text-white shadow-[0_14px_30px_-14px_rgba(28,157,217,0.7)]"
+                        : "border-ink/[0.08] bg-paper-pure text-ink hover:border-ink/25"
+                    }`}
+                    style={{ top: `calc(${top}% + 2px)`, height: `calc(${h}% - 4px)` }}
+                  >
+                    <span className="line-clamp-2 block text-[12.5px] font-semibold leading-tight">{w.name}</span>
+                    <span className={`font-display mt-0.5 block truncate text-[11px] tabular-nums ${on ? "text-white/80" : "text-ink-muted"}`}>
+                      {w.start} – {w.end}
+                    </span>
+                    {tr.halls.length > 1 && (
+                      <span className={`mt-auto block truncate text-[10.5px] ${on ? "text-white/75" : "text-ink-muted"}`}>
+                        {t.schedule.halls[w.hall].replace(/^(Dvorana|Dvorani)\s|\sHall$/i, "")}
+                      </span>
+                    )}
+                  </button>
+                  {w.id === BREAK.after && (
+                    <span
+                      className="absolute inset-x-0 flex items-center justify-center gap-1 rounded-lg text-[10.5px] text-ink-muted"
+                      style={{
+                        top: `calc(${pct(toMin(BREAK.start))}% + 2px)`,
+                        height: `calc(${pct(toMin(BREAK.end)) - pct(toMin(BREAK.start))}% - 4px)`,
+                        backgroundImage: "repeating-linear-gradient(135deg, rgba(10,10,15,0.05) 0 6px, transparent 6px 12px)",
+                      }}
+                      title={t.schedule.coffee}
+                    >
+                      <Icon name="cup" className="size-3" />
+                    </span>
+                  )}
+                </Fragment>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -294,7 +341,7 @@ function WorkshopCard({ w }: { w: Workshop }) {
                 <span className="size-1 rounded-full bg-blue" aria-hidden />
                 <span className="inline-flex items-center gap-1.5">
                   <Icon name="pin" className="size-4" />
-                  {t.hero.venue}
+                  {t.schedule.halls[w.hall]}
                 </span>
               </p>
               <button

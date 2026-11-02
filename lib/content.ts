@@ -26,8 +26,14 @@ const LOREM_TITLE = "Lorem ipsum dolor sit amet, consectetur adipiscing";
 const LOREM_BODY =
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.";
 
+/* Two parallel programmes ("tracks"), each in its own hall(s). */
+export type HallId = "levant" | "tramontana" | "maestral";
+export type TrackId = "main" | "parallel";
+
 export type Workshop = {
   id: WorkshopId;
+  track: TrackId;
+  hall: HallId;
   name: string;
   logo: string;
   /** Logo height class — logos have very different aspect ratios. */
@@ -48,6 +54,8 @@ export type Workshop = {
 export const WORKSHOPS: Workshop[] = [
   {
     id: "rentlio",
+    track: "main",
+    hall: "levant",
     name: "Rentlio Pro",
     logo: "/rentlio-logo.svg",
     logoClass: "h-7 lg:h-8",
@@ -64,6 +72,8 @@ export const WORKSHOPS: Workshop[] = [
   },
   {
     id: "worldline",
+    track: "main",
+    hall: "levant",
     name: "Worldline · Rentlio Pay",
     logo: "/partners/worldline.png",
     logoClass: "h-[18px] lg:h-5",
@@ -77,6 +87,8 @@ export const WORKSHOPS: Workshop[] = [
   },
   {
     id: "seyfor",
+    track: "main",
+    hall: "levant",
     name: "Seyfor",
     logo: "/partners/seyfor.png",
     logoClass: "h-8 lg:h-9",
@@ -90,6 +102,8 @@ export const WORKSHOPS: Workshop[] = [
   },
   {
     id: "phobs",
+    track: "main",
+    hall: "levant",
     name: "PHOBS",
     logo: "/partners/phobs.svg",
     logoClass: "h-[22px] lg:h-6",
@@ -101,49 +115,73 @@ export const WORKSHOPS: Workshop[] = [
     title: LOREM_TITLE,
     body: LOREM_BODY,
   },
-  // ─── Added later; times are placeholders for ordering (to be corrected) ───
+  // ─── Parallel track (Tramontana / Maestral), runs alongside Dvorana Levant.
+  //     Halls alternate so the next workshop can set up during the 5-min gap. ───
   {
     id: "smartness",
+    track: "parallel",
+    hall: "tramontana",
     name: "Smartness",
     logo: "/partners/smartness.svg",
     logoClass: "h-6 lg:h-7",
     chipLogoClass: "h-3 sm:h-4",
-    start: "12:15",
-    end: "12:45",
-    minutes: 30,
+    start: "10:00",
+    end: "10:45",
+    minutes: 45,
     title: LOREM_TITLE,
     body: LOREM_BODY,
   },
   {
     id: "lighthouse",
+    track: "parallel",
+    hall: "maestral",
     name: "Lighthouse",
     logo: "/partners/lighthouse.svg",
     logoClass: "h-6 lg:h-7",
     logoInk: true,
     chipLogoClass: "h-3 sm:h-4",
-    start: "12:45",
-    end: "13:15",
-    minutes: 30,
+    start: "10:50",
+    end: "11:35",
+    minutes: 45,
     title: LOREM_TITLE,
     body: LOREM_BODY,
   },
   {
     id: "dell",
+    track: "parallel",
+    hall: "tramontana",
     name: "Dell & ComTel",
     logo: "/partners/dell-comtel.svg",
     logoClass: "h-[15px] lg:h-[18px]",
     logoInk: true,
     chipLogoClass: "h-2 sm:h-[13px]",
-    start: "13:15",
-    end: "13:45",
-    minutes: 30,
+    start: "11:40",
+    end: "12:25",
+    minutes: 45,
     title: LOREM_TITLE,
     body: LOREM_BODY,
   },
 ];
 
-/** Coffee break sits between these two workshops. */
+/** Coffee break in Dvorana Levant, right after Rentlio Pro. */
 export const BREAK = { after: "rentlio" as WorkshopId, start: "10:30", end: "10:45" };
+
+export const TRACKS: { id: TrackId; halls: HallId[] }[] = [
+  { id: "main", halls: ["levant"] },
+  { id: "parallel", halls: ["tramontana", "maestral"] },
+];
+
+/** "09:15" → minutes since midnight. */
+export const toMin = (t: string) => {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+};
+/** Earliest start / latest end across all workshops. */
+export const DAY_START = WORKSHOPS.reduce((a, w) => (toMin(w.start) < toMin(a) ? w.start : a), WORKSHOPS[0].start);
+export const DAY_END = WORKSHOPS.reduce((a, w) => (toMin(w.end) > toMin(a) ? w.end : a), WORKSHOPS[0].end);
+/** Do two workshops overlap in time? */
+export const overlaps = (a: Workshop, b: Workshop) =>
+  toMin(a.start) < toMin(b.end) && toMin(b.start) < toMin(a.end);
 
 /* ───────── UI strings ───────── */
 export type Dict = {
@@ -170,6 +208,9 @@ export type Dict = {
     register: string;
     programLabel: string;
     program: { intro: string; deepdive: string };
+    halls: Record<HallId, string>;
+    tracks: Record<TrackId, { title: string; subtitle: string }>;
+    parallelBadge: string;
   };
   form: {
     eyebrow: string;
@@ -193,6 +234,7 @@ export type Dict = {
     errEmail: string;
     errPick: string;
     errPrivacy: string;
+    clash: string;
     successTitle: string;
     successBody: string;
     again: string;
@@ -221,13 +263,19 @@ const hr: Dict = {
   schedule: {
     eyebrow: "Raspored",
     title: "Što možete očekivati od radionica?",
-    body: "Radionice se održavaju jedna za drugom. Odaberite one koje vas zanimaju ili ostanite do kraja.",
+    body: "Program se odvija u dvije usporedne linije: Rentlio Pro i rješenja partnera u dvorani Levant te radionice partnera u dvoranama Tramontana i Maestral. Odaberite one koje vas zanimaju.",
     coffee: "Pauza za kavu",
     minutes: "min",
     until: "do",
     register: "Prijavite se",
     programLabel: "Program",
     program: { intro: "High level intro", deepdive: "Product deep dive" },
+    halls: { levant: "Dvorana Levant", tramontana: "Dvorana Tramontana", maestral: "Dvorana Maestral" },
+    tracks: {
+      main: { title: "Dvorana Levant", subtitle: "Rentlio Pro i rješenja partnera" },
+      parallel: { title: "Dvorane Tramontana i Maestral", subtitle: "Radionice partnera, usporedno s dvoranom Levant" },
+    },
+    parallelBadge: "Usporedno",
   },
   form: {
     eyebrow: "Prijava",
@@ -251,6 +299,7 @@ const hr: Dict = {
     errEmail: "Upišite ispravnu e-mail adresu",
     errPick: "Odaberite barem jednu radionicu",
     errPrivacy: "Potrebno je prihvatiti politiku privatnosti",
+    clash: "Ove se radionice održavaju u isto vrijeme:",
     successTitle: "Hvala na prijavi!",
     successBody: "Potvrdu i sve detalje poslat ćemo vam na e-mail.",
     again: "Nova prijava",
@@ -284,13 +333,19 @@ const en: Dict = {
   schedule: {
     eyebrow: "Schedule",
     title: "What to expect from the workshops?",
-    body: "Workshops run back to back. Pick the ones that interest you or stay until the end.",
+    body: "The programme runs in two parallel tracks: Rentlio Pro and partner solutions in Levant Hall, and partner workshops in Tramontana and Maestral Halls. Pick the ones that interest you.",
     coffee: "Coffee break",
     minutes: "min",
     until: "until",
     register: "Register",
     programLabel: "Program",
     program: { intro: "High level intro", deepdive: "Product deep dive" },
+    halls: { levant: "Levant Hall", tramontana: "Tramontana Hall", maestral: "Maestral Hall" },
+    tracks: {
+      main: { title: "Levant Hall", subtitle: "Rentlio Pro and partner solutions" },
+      parallel: { title: "Tramontana & Maestral Halls", subtitle: "Partner workshops, in parallel with Levant Hall" },
+    },
+    parallelBadge: "Parallel",
   },
   form: {
     eyebrow: "Registration",
@@ -314,6 +369,7 @@ const en: Dict = {
     errEmail: "Please enter a valid email address",
     errPick: "Choose at least one workshop",
     errPrivacy: "Please accept the privacy policy",
+    clash: "These workshops take place at the same time:",
     successTitle: "Thank you for registering!",
     successBody: "We'll send the confirmation and all details to your email.",
     again: "New registration",
@@ -347,13 +403,19 @@ const sl: Dict = {
   schedule: {
     eyebrow: "Urnik",
     title: "Kaj lahko pričakujete od delavnic?",
-    body: "Delavnice potekajo ena za drugo. Izberite tiste, ki vas zanimajo, ali ostanite do konca.",
+    body: "Program poteka v dveh vzporednih sklopih: Rentlio Pro in rešitve partnerjev v dvorani Levant ter delavnice partnerjev v dvoranah Tramontana in Maestral. Izberite tiste, ki vas zanimajo.",
     coffee: "Odmor za kavo",
     minutes: "min",
     until: "do",
     register: "Prijavite se",
     programLabel: "Program",
     program: { intro: "High level intro", deepdive: "Product deep dive" },
+    halls: { levant: "Dvorana Levant", tramontana: "Dvorana Tramontana", maestral: "Dvorana Maestral" },
+    tracks: {
+      main: { title: "Dvorana Levant", subtitle: "Rentlio Pro in rešitve partnerjev" },
+      parallel: { title: "Dvorani Tramontana in Maestral", subtitle: "Delavnice partnerjev, vzporedno z dvorano Levant" },
+    },
+    parallelBadge: "Vzporedno",
   },
   form: {
     eyebrow: "Prijava",
@@ -377,6 +439,7 @@ const sl: Dict = {
     errEmail: "Vpišite veljaven e-naslov",
     errPick: "Izberite vsaj eno delavnico",
     errPrivacy: "Sprejeti morate politiko zasebnosti",
+    clash: "Te delavnice potekajo ob istem času:",
     successTitle: "Hvala za prijavo!",
     successBody: "Potrdilo in vse podrobnosti vam bomo poslali po e-pošti.",
     again: "Nova prijava",
