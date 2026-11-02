@@ -172,7 +172,7 @@ export const WORKSHOPS: Workshop[] = [
     },
   },
   // ─── Parallel track (Tramontana / Maestral), runs alongside Dvorana Levant.
-  //     Halls alternate so the next workshop can set up during the 5-min gap. ───
+  //     Halls alternate so the next workshop can set up between sessions. ───
   {
     id: "smartness",
     track: "parallel",
@@ -181,8 +181,8 @@ export const WORKSHOPS: Workshop[] = [
     logo: "/partners/smartness.svg",
     logoClass: "h-6 lg:h-7",
     chipLogoClass: "h-3 sm:h-4",
-    start: "10:00",
-    end: "10:45",
+    start: "09:45",
+    end: "10:30",
     minutes: 45,
     copy: {
       hr: {
@@ -208,8 +208,8 @@ export const WORKSHOPS: Workshop[] = [
     logoClass: "h-6 lg:h-7",
     logoInk: true,
     chipLogoClass: "h-3 sm:h-4",
-    start: "10:50",
-    end: "11:35",
+    start: "10:45",
+    end: "11:30",
     minutes: 45,
     copy: {
       hr: {
@@ -235,8 +235,8 @@ export const WORKSHOPS: Workshop[] = [
     logoClass: "h-9 lg:h-11",
     logoInk: true,
     chipLogoClass: "h-4 sm:h-5",
-    start: "11:40",
-    end: "12:25",
+    start: "11:35",
+    end: "12:20",
     minutes: 45,
     // copy: details coming soon
   },
