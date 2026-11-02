@@ -114,13 +114,6 @@ export function Hero() {
               {t.hero.cta}
               <Arrow className="transition-transform duration-300 group-hover:translate-x-1" />
             </a>
-            <a
-              href="#raspored"
-              className="focus-ring group inline-flex items-center gap-2 text-[15px] font-medium text-ink transition-colors hover:text-blue"
-            >
-              {t.hero.scheduleLink}
-              <Arrow className="rotate-90 transition-transform duration-300 group-hover:translate-y-0.5" />
-            </a>
           </div>
         </div>
 

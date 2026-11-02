@@ -9,7 +9,6 @@ import {
   DAY_END,
   DAY_START,
   TRACKS,
-  VENUE_SHORT,
   WORKSHOPS,
   toMin,
   type TrackId,
@@ -111,7 +110,7 @@ export function Workshops() {
         <header className="ws-reveal mx-auto max-w-[800px] text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-blue">{t.schedule.eyebrow}</p>
           <h2 className="section-headline mt-4">{t.schedule.title}</h2>
-          <p className="mx-auto mt-6 max-w-[640px] text-[17px] leading-[1.6] text-ink-soft lg:text-[19px]">{t.schedule.body}</p>
+          <p className="mx-auto mt-6 max-w-[760px] text-[17px] leading-[1.6] text-ink-soft lg:text-[19px]">{t.schedule.body}</p>
         </header>
 
         {/* Mobile / tablet: the timetable sits above the cards. */}
@@ -324,26 +323,14 @@ function WorkshopCard({ w }: { w: Workshop }) {
             </div>
 
             <p className="sr-only">{w.name}</p>
-            {copy ? (
-              <>
-                <h3 className="font-display text-[22px] font-medium leading-[1.22] tracking-[-0.02em] text-ink sm:text-[26px] md:mt-6 lg:text-[28px]">
-                  {copy.title}
-                </h3>
-                <div className="mt-4 flex flex-col gap-3 text-[15px] leading-[1.65] text-ink-soft lg:text-[16px]">
-                  {copy.body.split("\n").map((para, i) => (
-                    <p key={i}>{para}</p>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <p className="font-display flex items-center gap-3 text-[20px] font-medium leading-[1.3] tracking-[-0.01em] text-ink-muted sm:text-[22px] md:mt-6 lg:text-[24px]">
-                <span className="relative flex size-2.5 shrink-0" aria-hidden>
-                  <span className="absolute inset-0 animate-ping rounded-full bg-blue/50" />
-                  <span className="relative size-2.5 rounded-full bg-blue" />
-                </span>
-                {t.schedule.soon}
-              </p>
-            )}
+            <h3 className="font-display text-[22px] font-medium leading-[1.22] tracking-[-0.02em] text-ink sm:text-[26px] md:mt-6 lg:text-[28px]">
+              {copy?.title ?? t.schedule.soonTitle}
+            </h3>
+            <div className="mt-4 flex flex-col gap-3 text-[15px] leading-[1.65] text-ink-soft lg:text-[16px]">
+              {(copy?.body ?? t.schedule.soonBody).split("\n").map((para, i) => (
+                <p key={i}>{para}</p>
+              ))}
+            </div>
 
             {w.program && (
               <div className="mt-7">
@@ -373,7 +360,7 @@ function WorkshopCard({ w }: { w: Workshop }) {
                 <span className="size-1 rounded-full bg-blue" aria-hidden />
                 <span className="inline-flex items-center gap-1.5">
                   <Icon name="pin" className="size-4" />
-                  {t.schedule.halls[w.hall]}, {VENUE_SHORT}
+                  {t.schedule.halls[w.hall]}, {t.schedule.venueSuffix}
                 </span>
               </p>
               <button

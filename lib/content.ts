@@ -24,8 +24,6 @@ export type WorkshopId = "rentlio" | "worldline" | "seyfor" | "phobs" | "smartne
 /* Two parallel programmes ("tracks"), each in its own hall(s). */
 export type HallId = "levant" | "tramontana" | "maestral";
 export type TrackId = "main" | "parallel";
-/** All halls are in Hotel Iadera. */
-export const VENUE_SHORT = "Iadera";
 
 /** Workshop title + description per language. Paragraphs split on "\n". */
 export type Copy = Record<Lang, { title: string; body: string }>;
@@ -49,7 +47,7 @@ export type Workshop = {
   start: string;
   end: string;
   minutes: number;
-  /** Missing → the card shows "workshop details coming soon". */
+  /** Missing → the card shows "title/details coming soon". */
   copy?: Copy;
   /** Optional agenda inside the workshop (confirmed for Rentlio Pro). */
   program?: { key: "intro" | "deepdive"; speaker: string; img: string }[];
@@ -276,7 +274,6 @@ export type Dict = {
     venue: string;
     seats: string;
     cta: string;
-    scheduleLink: string;
     orbitTop: (n: number) => string;
   };
   schedule: {
@@ -292,7 +289,10 @@ export type Dict = {
     halls: Record<HallId, string>;
     tracks: Record<TrackId, { title: string; subtitle: string }>;
     parallelBadge: string;
-    soon: string;
+    soonTitle: string;
+    soonBody: string;
+    /** Appended to the hall on each card, e.g. "Dvorana Levant, hotel Iadera". */
+    venueSuffix: string;
   };
   form: {
     eyebrow: string;
@@ -332,20 +332,19 @@ const hr: Dict = {
   },
   header: { cta: "Prijavite se" },
   hero: {
-    eyebrow: "Radionice partnera",
-    title: "Otvorene su prijave za radionice i prezentacije partnera",
-    body: "Dan nakon Rediscovera održat će se radionice naših partnera. Konkretna rješenja, demonstracije uživo i vrijeme za vaša pitanja.",
+    eyebrow: "Radionice",
+    title: "Otvorene su prijave za radionice Rentlija i ovogodišnjih partnera",
+    body: "Dan nakon Rediscovera održat će se radionice Rentlija i naših partnera. Radionice donose konkretna rješenja, demonstracije uživo i odgovore na sva vaša pitanja.",
     date: "13. 11. 2026.",
     venue: "Hotel Iadera",
     seats: "Ograničen broj mjesta",
     cta: "Prijavite se",
-    scheduleLink: "Pogledajte raspored",
     orbitTop: (n) => `${n} ${n % 10 >= 2 && n % 10 <= 4 && !(n % 100 >= 12 && n % 100 <= 14) ? "radionice" : "radionica"}`,
   },
   schedule: {
     eyebrow: "Raspored",
-    title: "Što možete očekivati od radionica?",
-    body: "Program se odvija u dvije usporedne linije: Rentlio Pro i rješenja partnera u dvorani Levant te radionice partnera u dvoranama Tramontana i Maestral. Odaberite one koje vas zanimaju.",
+    title: "Prijavite se i saznajte sve o Rentliju Pro i rješenjima naših partnera",
+    body: "Rentlio Pro radionica namijenjena je hotelijerima koji još nisu korisnici Rentlija, a žele čuti više o prednostima korištenja sustava kao i mogućnostima integracija s rješenjima koja pružaju kompanije Worldline, Seyfor i PHOBS. Paralelno će se odvijati i radionice odabranih partnera poput Smartnessa, Lighthousea i Dell Technologies.",
     coffee: "Pauza za kavu",
     minutes: "min",
     until: "do",
@@ -358,7 +357,9 @@ const hr: Dict = {
       parallel: { title: "Dvorane Tramontana i Maestral", subtitle: "Radionice partnera, usporedno s dvoranom Levant" },
     },
     parallelBadge: "Usporedno",
-    soon: "Detalji radionice uskoro",
+    soonTitle: "Naziv radionice stiže uskoro",
+    soonBody: "Detalji radionice bit će uskoro objavljeni.",
+    venueSuffix: "hotel Iadera",
   },
   form: {
     eyebrow: "Prijava",
@@ -403,20 +404,19 @@ const en: Dict = {
   },
   header: { cta: "Register" },
   hero: {
-    eyebrow: "Partner workshops",
-    title: "Registration is open for partner workshops and presentations",
-    body: "The day after Rediscover, our partners host a morning of workshops. Practical solutions, live demos and time for your questions.",
+    eyebrow: "Workshops",
+    title: "Registration is open for workshops by Rentlio and this year's partners",
+    body: "The day after Rediscover, Rentlio and our partners host a morning of workshops. Expect practical solutions, live demos and answers to all your questions.",
     date: "November 13, 2026",
     venue: "Hotel Iadera",
     seats: "Limited seats",
     cta: "Register",
-    scheduleLink: "See the schedule",
     orbitTop: (n) => `${n} workshop${n === 1 ? "" : "s"}`,
   },
   schedule: {
     eyebrow: "Schedule",
-    title: "What to expect from the workshops?",
-    body: "The programme runs in two parallel tracks: Rentlio Pro and partner solutions in Levant Hall, and partner workshops in Tramontana and Maestral Halls. Pick the ones that interest you.",
+    title: "Register and discover everything about Rentlio Pro and our partners' solutions",
+    body: "The Rentlio Pro workshop is designed for hoteliers who don't use Rentlio yet but want to learn more about the benefits of the system and its integrations with solutions from Worldline, Seyfor and PHOBS. Running in parallel are workshops by selected partners such as Smartness, Lighthouse and Dell Technologies.",
     coffee: "Coffee break",
     minutes: "min",
     until: "until",
@@ -429,7 +429,9 @@ const en: Dict = {
       parallel: { title: "Tramontana & Maestral Halls", subtitle: "Partner workshops, in parallel with Levant Hall" },
     },
     parallelBadge: "Parallel",
-    soon: "Workshop details coming soon",
+    soonTitle: "Workshop title coming soon",
+    soonBody: "Workshop details will be announced soon.",
+    venueSuffix: "Hotel Iadera",
   },
   form: {
     eyebrow: "Registration",
@@ -474,20 +476,19 @@ const sl: Dict = {
   },
   header: { cta: "Prijavite se" },
   hero: {
-    eyebrow: "Delavnice partnerjev",
-    title: "Prijave na delavnice in predstavitve partnerjev so odprte",
-    body: "Dan po Rediscoveru bodo potekale delavnice naših partnerjev. Konkretne rešitve, predstavitve v živo in čas za vaša vprašanja.",
+    eyebrow: "Delavnice",
+    title: "Prijave na delavnice Rentlia in letošnjih partnerjev so odprte",
+    body: "Dan po Rediscoveru bodo potekale delavnice Rentlia in naših partnerjev. Delavnice prinašajo konkretne rešitve, predstavitve v živo in odgovore na vsa vaša vprašanja.",
     date: "13. 11. 2026",
     venue: "Hotel Iadera",
     seats: "Omejeno število mest",
     cta: "Prijavite se",
-    scheduleLink: "Oglejte si urnik",
     orbitTop: (n) => `${n} ${n === 1 ? "delavnica" : n === 2 ? "delavnici" : n <= 4 ? "delavnice" : "delavnic"}`,
   },
   schedule: {
     eyebrow: "Urnik",
-    title: "Kaj lahko pričakujete od delavnic?",
-    body: "Program poteka v dveh vzporednih sklopih: Rentlio Pro in rešitve partnerjev v dvorani Levant ter delavnice partnerjev v dvoranah Tramontana in Maestral. Izberite tiste, ki vas zanimajo.",
+    title: "Prijavite se in spoznajte vse o Rentlio Pro in rešitvah naših partnerjev",
+    body: "Delavnica Rentlio Pro je namenjena hotelirjem, ki še niso uporabniki Rentlia, a želijo izvedeti več o prednostih uporabe sistema ter o možnostih integracij z rešitvami podjetij Worldline, Seyfor in PHOBS. Vzporedno bodo potekale tudi delavnice izbranih partnerjev, kot so Smartness, Lighthouse in Dell Technologies.",
     coffee: "Odmor za kavo",
     minutes: "min",
     until: "do",
@@ -500,7 +501,9 @@ const sl: Dict = {
       parallel: { title: "Dvorani Tramontana in Maestral", subtitle: "Delavnice partnerjev, vzporedno z dvorano Levant" },
     },
     parallelBadge: "Vzporedno",
-    soon: "Podrobnosti delavnice kmalu",
+    soonTitle: "Naziv delavnice bo kmalu objavljen",
+    soonBody: "Podrobnosti delavnice bodo objavljene kmalu.",
+    venueSuffix: "hotel Iadera",
   },
   form: {
     eyebrow: "Prijava",
