@@ -181,8 +181,12 @@ export function RegisterForm() {
                                   <span className="block text-[15px] font-medium leading-snug text-ink">{w.name}</span>
                                   <span className="font-display mt-0.5 block text-[13px] tabular-nums text-ink-muted">
                                     {w.start} – {w.end}
-                                    {tr.halls.length > 1 && <> · {t.schedule.halls[w.hall].replace(/^(Dvorana|Dvorani)\s|\sHall$/i, "")}</>}
                                   </span>
+                                  {tr.halls.length > 1 && (
+                                    <span className="block text-[12.5px] text-ink-muted">
+                                      {t.schedule.halls[w.hall]}
+                                    </span>
+                                  )}
                                 </span>
                                 <img src={w.logo} alt="" className={`w-auto max-w-[96px] object-contain opacity-80 ${w.chipLogoClass} ${w.logoInk ? "logo-ink" : ""}`} />
                               </label>
