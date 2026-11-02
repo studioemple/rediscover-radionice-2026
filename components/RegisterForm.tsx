@@ -182,11 +182,6 @@ export function RegisterForm() {
                                   <span className="font-display mt-0.5 block text-[13px] tabular-nums text-ink-muted">
                                     {w.start} – {w.end}
                                   </span>
-                                  {tr.halls.length > 1 && (
-                                    <span className="block text-[12.5px] text-ink-muted">
-                                      {t.schedule.halls[w.hall]}
-                                    </span>
-                                  )}
                                 </span>
                               </label>
                             );
