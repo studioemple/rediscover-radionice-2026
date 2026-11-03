@@ -287,11 +287,6 @@ function Timetable({ active, compact = false }: { active: WorkshopId; compact?: 
               const top = pct(toMin(w.start));
               const h = pct(toMin(w.end)) - top;
               const len = toMin(w.end) - toMin(w.start);
-              const eyebrow = (
-                <span className={`block text-[9.5px] font-semibold uppercase tracking-[0.1em] ${on ? "text-white/75" : "text-blue"}`}>
-                  {t.schedule.workshopNo(w.no)}
-                </span>
-              );
               const time = (start: string, end: string) => (
                 <span className={`font-display mt-0.5 block truncate text-[11px] tabular-nums ${on ? "text-white/80" : "text-ink-muted"}`}>
                   {start} – {end}
@@ -303,7 +298,7 @@ function Timetable({ active, compact = false }: { active: WorkshopId; compact?: 
                   type="button"
                   onClick={() => scrollToCard(w.id)}
                   aria-current={on ? "step" : undefined}
-                  aria-label={`${t.schedule.workshopNo(w.no)}: ${w.name}, ${w.start} – ${w.end}, ${t.schedule.halls[w.hall]}`}
+                  aria-label={`${w.name}, ${w.start} – ${w.end}, ${t.schedule.halls[w.hall]}`}
                   className={`tt-block focus-ring group absolute inset-x-0 overflow-hidden rounded-xl border text-left transition-all duration-500 ease-premium ${
                     on
                       ? "z-10 border-blue bg-blue text-white shadow-[0_14px_30px_-14px_rgba(28,157,217,0.7)]"
@@ -324,15 +319,13 @@ function Timetable({ active, compact = false }: { active: WorkshopId; compact?: 
                           height: `${((toMin(s.end) - toMin(s.start)) / len) * 100}%`,
                         }}
                       >
-                        {i === 0 && eyebrow}
-                        <span className="block truncate text-[12.5px] font-semibold leading-tight">{s.short ?? s.name}</span>
+                                                <span className="block truncate text-[12.5px] font-semibold leading-tight">{s.short ?? s.name}</span>
                         {time(s.start, s.end)}
                       </span>
                     ))
                   ) : (
                     <>
-                      {eyebrow}
-                      <span className="mt-0.5 line-clamp-2 block text-[12.5px] font-semibold leading-tight">{w.name}</span>
+                      <span className="line-clamp-2 block text-[12.5px] font-semibold leading-tight">{w.name}</span>
                       {time(w.start, w.end)}
                     </>
                   )}
@@ -375,9 +368,8 @@ function WorkshopCard({ w }: { w: Workshop }) {
         <div className="grid md:grid-cols-[minmax(230px,36%)_1fr]">
           {/* Content */}
           <div className="order-2 p-6 sm:p-8 lg:p-10">
-            <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-blue">{t.schedule.workshopNo(w.no)}</p>
             {/* Mobile shows time and duration on the stage above → desktop only. */}
-            <div className="mt-4 hidden flex-wrap items-center gap-x-4 gap-y-3 md:flex">
+            <div className="hidden flex-wrap items-center gap-x-4 gap-y-3 md:flex">
               <div className="flex items-center gap-2">
                 <span className="font-display hidden items-center gap-1.5 rounded-full bg-blue/[0.08] px-3 py-1.5 md:inline-flex text-[13px] font-medium tabular-nums text-[#147DB0]">
                   <Icon name="clock" className="size-3.5" />
@@ -390,7 +382,7 @@ function WorkshopCard({ w }: { w: Workshop }) {
             </div>
 
             <p className="sr-only">{w.name}</p>
-            <h3 className="font-display mt-3 text-[22px] font-medium leading-[1.22] tracking-[-0.02em] text-ink sm:text-[26px] md:mt-6 lg:text-[28px]">
+            <h3 className="font-display text-[22px] font-medium leading-[1.22] tracking-[-0.02em] text-ink sm:text-[26px] md:mt-6 lg:text-[28px]">
               {copy?.title ?? t.schedule.soonTitle}
             </h3>
             <div className="mt-4 flex flex-col gap-3 text-[15px] leading-[1.65] text-ink-soft lg:text-[16px]">

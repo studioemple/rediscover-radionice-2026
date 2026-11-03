@@ -178,8 +178,7 @@ export function RegisterForm() {
                                   </svg>
                                 </span>
                                 <span className="min-w-0 flex-1">
-                                  <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-blue">{t.schedule.workshopNo(w.no)}</span>
-                                  <span className="mt-0.5 block text-[15px] font-medium leading-snug text-ink">{w.name}</span>
+                                  <span className="block text-[15px] font-medium leading-snug text-ink">{w.name}</span>
                                   <span className="font-display mt-0.5 block text-[13px] tabular-nums text-ink-muted">
                                     {w.start} – {w.end}
                                   </span>
@@ -204,7 +203,7 @@ export function RegisterForm() {
                       </svg>
                       <span>
                         {t.form.clash}{" "}
-                        {clashes.map(([a, b]) => `${t.schedule.workshopNo(a.no)} (${a.start} – ${a.end}) / ${t.schedule.workshopNo(b.no)} (${b.start} – ${b.end})`).join(", ")}
+                        {clashes.map(([a, b]) => `${a.name} (${a.start} – ${a.end}) / ${b.name} (${b.start} – ${b.end})`).join(", ")}
                       </span>
                     </p>
                   )}

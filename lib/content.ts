@@ -65,8 +65,6 @@ export type Session = LogoFields & {
 
 export type Workshop = LogoFields & {
   id: WorkshopId;
-  /** "Radionica 1", "Radionica 2" … */
-  no: number;
   track: TrackId;
   hall: HallId;
   name: string;
@@ -82,7 +80,6 @@ export type Workshop = LogoFields & {
 export const WORKSHOPS: Workshop[] = [
   {
     id: "rentlio",
-    no: 1,
     track: "main",
     hall: "levant",
     name: "Rentlio / Worldline / Seyfor / PHOBS",
@@ -178,7 +175,6 @@ export const WORKSHOPS: Workshop[] = [
   // ─── Parallel track (Tramontana / Maestral), runs alongside Dvorana Levant. ───
   {
     id: "smartness",
-    no: 2,
     track: "parallel",
     hall: "tramontana",
     name: "Smartness",
@@ -205,7 +201,6 @@ export const WORKSHOPS: Workshop[] = [
   },
   {
     id: "lighthouse",
-    no: 3,
     track: "parallel",
     hall: "maestral",
     name: "Lighthouse",
@@ -233,7 +228,6 @@ export const WORKSHOPS: Workshop[] = [
   },
   {
     id: "dell",
-    no: 4,
     track: "parallel",
     hall: "tramontana",
     name: "Dell & ComTel",
@@ -300,7 +294,6 @@ export type Dict = {
     until: string;
     register: string;
     programLabel: string;
-    workshopNo: (n: number) => string;
     program: { intro: string; deepdive: string };
     halls: Record<HallId, string>;
     tracks: Record<TrackId, { title: string; subtitle: string }>;
@@ -366,7 +359,6 @@ const hr: Dict = {
     until: "do",
     register: "Prijavite se",
     programLabel: "Program radionice",
-    workshopNo: (n) => `Radionica ${n}`,
     program: { intro: "High level intro", deepdive: "Product deep dive" },
     halls: { levant: "Dvorana Levant", tramontana: "Dvorana Tramontana", maestral: "Dvorana Maestral" },
     tracks: {
@@ -439,7 +431,6 @@ const en: Dict = {
     until: "until",
     register: "Register",
     programLabel: "Workshop programme",
-    workshopNo: (n) => `Workshop ${n}`,
     program: { intro: "High level intro", deepdive: "Product deep dive" },
     halls: { levant: "Levant Hall", tramontana: "Tramontana Hall", maestral: "Maestral Hall" },
     tracks: {
@@ -512,7 +503,6 @@ const sl: Dict = {
     until: "do",
     register: "Prijavite se",
     programLabel: "Program delavnice",
-    workshopNo: (n) => `Delavnica ${n}`,
     program: { intro: "High level intro", deepdive: "Product deep dive" },
     halls: { levant: "Dvorana Levant", tramontana: "Dvorana Tramontana", maestral: "Dvorana Maestral" },
     tracks: {
