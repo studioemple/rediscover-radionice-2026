@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { LanguageSwitcher, useLang } from "@/components/LanguageProvider";
-import { DAY_END, DAY_START, WORKSHOPS } from "@/lib/content";
+import { DAY_END, DAY_START, ORBIT_ITEMS, WORKSHOPS } from "@/lib/content";
 import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
 
 /* ───────────────────────── Header ─────────────────────────
@@ -153,13 +153,13 @@ function Orbit() {
       </div>
 
       <div className="orbit-track absolute inset-0">
-        {WORKSHOPS.map((w, i) => (
-          <div key={w.id} className="absolute inset-0" style={{ transform: `rotate(${(i * 360) / WORKSHOPS.length}deg)` }}>
+        {ORBIT_ITEMS.map((w, i) => (
+          <div key={w.key} className="absolute inset-0" style={{ transform: `rotate(${(i * 360) / ORBIT_ITEMS.length}deg)` }}>
             <a
-              href={`#ws-${w.id}`}
+              href={`#ws-${w.workshop}`}
               aria-label={`${w.name} ${w.start}`}
               className="orbit-anchor focus-ring absolute left-1/2 top-[9%] block"
-              style={{ transform: `translate(-50%, -50%) rotate(${(-i * 360) / WORKSHOPS.length}deg)` }}
+              style={{ transform: `translate(-50%, -50%) rotate(${(-i * 360) / ORBIT_ITEMS.length}deg)` }}
             >
               <span className="orbit-upright block">
                 <span className="orbit-chip flex flex-col items-center gap-1.5 rounded-xl border border-ink/[0.06] bg-paper-pure px-2.5 py-2 shadow-[0_18px_40px_-22px_rgba(10,10,15,0.35)] transition-transform duration-300 ease-premium hover:scale-110 sm:rounded-2xl sm:px-4 sm:py-3">

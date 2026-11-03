@@ -17,6 +17,8 @@ Next.js 15 · React 19 · Tailwind 3 · GSAP. Nema env varijabli.
 
 - **`lib/content.ts`** — sav sadržaj na jednom mjestu:
   - `WORKSHOPS` — termini, dvorane, logotipi te naslovi i opisi radionica (`copy`, EN / HR / SLO).
+    Radionica 1 (Dvorana Levant) je jedna zajednička radionica: njezini dijelovi
+    (Rentlio Pro → Worldline → Seyfor → PHOBS) su u `sessions`.
     Dell & ComTel još nema tekst (`copy` izostavljen → prikazuje se „Detalji radionice uskoro”).
   - `dictionaries` — svi tekstovi sučelja za EN / HR / SLO.
   - `DEFAULT_LANG` — zadani jezik (trenutno HR).

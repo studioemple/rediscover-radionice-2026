@@ -12,6 +12,7 @@ import {
   WORKSHOPS,
   toMin,
   type TrackId,
+  type Session,
   type Workshop,
   type WorkshopId,
 } from "@/lib/content";
@@ -284,26 +285,57 @@ function Timetable({ active, compact = false }: { active: WorkshopId; compact?: 
               const on = w.id === active;
               const top = pct(toMin(w.start));
               const h = pct(toMin(w.end)) - top;
+              const len = toMin(w.end) - toMin(w.start);
+              const eyebrow = (
+                <span className={`block text-[9.5px] font-semibold uppercase tracking-[0.1em] ${on ? "text-white/75" : "text-blue"}`}>
+                  {t.schedule.workshopNo(w.no)}
+                </span>
+              );
+              const time = (start: string, end: string) => (
+                <span className={`font-display mt-0.5 block truncate text-[11px] tabular-nums ${on ? "text-white/80" : "text-ink-muted"}`}>
+                  {start} – {end}
+                </span>
+              );
               return (
-                <Fragment key={w.id}>
-                  <button
-                    type="button"
-                    onClick={() => scrollToCard(w.id)}
-                    aria-current={on ? "step" : undefined}
-                    aria-label={`${w.name}, ${w.start} – ${w.end}, ${t.schedule.halls[w.hall]}`}
-                    className={`tt-block focus-ring group absolute inset-x-0 flex flex-col overflow-hidden rounded-xl border px-2.5 py-2 text-left transition-all duration-500 ease-premium ${
-                      on
-                        ? "z-10 border-blue bg-blue text-white shadow-[0_14px_30px_-14px_rgba(28,157,217,0.7)]"
-                        : "border-ink/[0.08] bg-paper-pure text-ink hover:border-ink/25"
-                    }`}
-                    style={{ top: `calc(${top}% + 2px)`, height: `calc(${h}% - 4px)` }}
-                  >
-                    <span className={`block text-[12.5px] font-semibold leading-tight ${w.minutes <= 30 ? "truncate" : "line-clamp-2"}`}>{w.short ?? w.name}</span>
-                    <span className={`font-display mt-0.5 block truncate text-[11px] tabular-nums ${on ? "text-white/80" : "text-ink-muted"}`}>
-                      {w.start} – {w.end}
-                    </span>
-                  </button>
-                </Fragment>
+                <button
+                  key={w.id}
+                  type="button"
+                  onClick={() => scrollToCard(w.id)}
+                  aria-current={on ? "step" : undefined}
+                  aria-label={`${t.schedule.workshopNo(w.no)}: ${w.name}, ${w.start} – ${w.end}, ${t.schedule.halls[w.hall]}`}
+                  className={`tt-block focus-ring group absolute inset-x-0 overflow-hidden rounded-xl border text-left transition-all duration-500 ease-premium ${
+                    on
+                      ? "z-10 border-blue bg-blue text-white shadow-[0_14px_30px_-14px_rgba(28,157,217,0.7)]"
+                      : "border-ink/[0.08] bg-paper-pure text-ink hover:border-ink/25"
+                  } ${w.sessions ? "" : "flex flex-col px-2.5 py-2"}`}
+                  style={{ top: `calc(${top}% + 2px)`, height: `calc(${h}% - 4px)` }}
+                >
+                  {w.sessions ? (
+                    // One workshop, several parts: rows inside a single block.
+                    w.sessions.map((s, i) => (
+                      <span
+                        key={s.id}
+                        className={`absolute inset-x-0 flex flex-col px-2.5 py-1.5 ${
+                          i === 0 ? "pt-2" : on ? "border-t border-white/25" : "border-t border-ink/[0.08]"
+                        }`}
+                        style={{
+                          top: `${((toMin(s.start) - toMin(w.start)) / len) * 100}%`,
+                          height: `${((toMin(s.end) - toMin(s.start)) / len) * 100}%`,
+                        }}
+                      >
+                        {i === 0 && eyebrow}
+                        <span className="block truncate text-[12.5px] font-semibold leading-tight">{s.short ?? s.name}</span>
+                        {time(s.start, s.end)}
+                      </span>
+                    ))
+                  ) : (
+                    <>
+                      {eyebrow}
+                      <span className="mt-0.5 line-clamp-2 block text-[12.5px] font-semibold leading-tight">{w.name}</span>
+                      {time(w.start, w.end)}
+                    </>
+                  )}
+                </button>
               );
             })}
           </div>
@@ -312,7 +344,7 @@ function Timetable({ active, compact = false }: { active: WorkshopId; compact?: 
         {/* Coffee break for everyone → spans both hall columns. */}
         <div className="pointer-events-none relative" style={{ gridColumn: "2 / 4", gridRow: 1 }}>
           <span
-            className="tt-block absolute inset-x-0 z-[5] flex items-center justify-center gap-2 overflow-hidden rounded-xl border border-[#E9CFAE] bg-[#FBF1E4] px-2.5 text-[12px] font-semibold text-[#7A4E22] shadow-[0_10px_24px_-18px_rgba(122,78,34,0.7)]"
+            className="tt-block absolute inset-x-0 z-20 flex items-center justify-center gap-2 overflow-hidden rounded-xl border border-[#E9CFAE] bg-[#FBF1E4] px-2.5 text-[12px] font-semibold text-[#7A4E22] shadow-[0_10px_24px_-18px_rgba(122,78,34,0.7)]"
             style={{
               top: `calc(${pct(toMin(BREAK.start))}% + 2px)`,
               height: `calc(${pct(toMin(BREAK.end)) - pct(toMin(BREAK.start))}% - 4px)`,
@@ -342,8 +374,9 @@ function WorkshopCard({ w }: { w: Workshop }) {
         <div className="grid md:grid-cols-[minmax(230px,36%)_1fr]">
           {/* Content */}
           <div className="order-2 p-6 sm:p-8 lg:p-10">
+            <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-blue">{t.schedule.workshopNo(w.no)}</p>
             {/* Mobile shows time and duration on the stage above → desktop only. */}
-            <div className="hidden flex-wrap items-center gap-x-4 gap-y-3 md:flex">
+            <div className="mt-4 hidden flex-wrap items-center gap-x-4 gap-y-3 md:flex">
               <div className="flex items-center gap-2">
                 <span className="font-display hidden items-center gap-1.5 rounded-full bg-blue/[0.08] px-3 py-1.5 md:inline-flex text-[13px] font-medium tabular-nums text-[#147DB0]">
                   <Icon name="clock" className="size-3.5" />
@@ -356,7 +389,7 @@ function WorkshopCard({ w }: { w: Workshop }) {
             </div>
 
             <p className="sr-only">{w.name}</p>
-            <h3 className="font-display text-[22px] font-medium leading-[1.22] tracking-[-0.02em] text-ink sm:text-[26px] md:mt-6 lg:text-[28px]">
+            <h3 className="font-display mt-3 text-[22px] font-medium leading-[1.22] tracking-[-0.02em] text-ink sm:text-[26px] md:mt-6 lg:text-[28px]">
               {copy?.title ?? t.schedule.soonTitle}
             </h3>
             <div className="mt-4 flex flex-col gap-3 text-[15px] leading-[1.65] text-ink-soft lg:text-[16px]">
@@ -365,24 +398,7 @@ function WorkshopCard({ w }: { w: Workshop }) {
               ))}
             </div>
 
-            {w.program && (
-              <div className="mt-7">
-                <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-blue">{t.schedule.programLabel}</p>
-                <ul className="mt-3 grid gap-3 sm:grid-cols-2">
-                  {w.program.map((p) => (
-                    <li key={p.key} className="flex items-center gap-3 rounded-2xl border border-ink/[0.08] bg-paper/60 p-3">
-                      <span className="relative block size-10 shrink-0 overflow-hidden rounded-full bg-line">
-                        <Image src={p.img} alt="" fill sizes="40px" className="object-cover" />
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block text-[14px] font-medium leading-tight text-ink">{t.schedule.program[p.key]}</span>
-                        <span className="mt-0.5 block text-[13px] text-ink-soft">{p.speaker}</span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            {w.sessions && <Agenda w={w} />}
 
             <div className="mt-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-5 border-t border-ink/[0.08] pt-6">
               <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-ink-soft lg:text-sm">
@@ -429,6 +445,71 @@ function WorkshopCard({ w }: { w: Workshop }) {
   );
 }
 
+/* Workshop 1's programme: one timeline, each part with its partner logo. */
+function Agenda({ w }: { w: Workshop }) {
+  const { t, lang } = useLang();
+  const inBreak = toMin(BREAK.start) >= toMin(w.start) && toMin(BREAK.end) <= toMin(w.end);
+  type Row = { kind: "session"; s: Session } | { kind: "break" };
+  const rows: Row[] = [];
+  w.sessions!.forEach((s) => {
+    if (inBreak && toMin(s.start) >= toMin(BREAK.end) && !rows.some((r) => r.kind === "break")) rows.push({ kind: "break" });
+    rows.push({ kind: "session", s });
+  });
+
+  return (
+    <div className="mt-8">
+      <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-blue">{t.schedule.programLabel}</p>
+      <ol className="mt-4">
+        {rows.map((r, i) => {
+          const last = i === rows.length - 1;
+          const start = r.kind === "break" ? BREAK.start : r.s.start;
+          const end = r.kind === "break" ? BREAK.end : r.s.end;
+          return (
+            <li key={r.kind === "break" ? "break" : r.s.id} className="grid grid-cols-[52px_1fr] gap-3 sm:grid-cols-[64px_1fr] sm:gap-4">
+              <span className="font-display pt-[3px] leading-tight tabular-nums">
+                <span className="block text-[14px] font-semibold text-ink sm:text-[15px]">{start}</span>
+                <span className="block text-[12px] text-ink-muted">{end}</span>
+              </span>
+              <div className={`relative border-l pl-5 sm:pl-6 ${last ? "border-transparent" : "border-ink/[0.1]"} ${last ? "" : "pb-6"}`}>
+                <span
+                  aria-hidden
+                  className={`absolute -left-[5px] top-[7px] size-[9px] rounded-full ring-4 ring-paper-pure ${r.kind === "break" ? "bg-[#C89058]" : "bg-blue"}`}
+                />
+                {r.kind === "break" ? (
+                  <span className="inline-flex items-center gap-2 rounded-full border border-[#E9CFAE] bg-[#FBF1E4] px-3.5 py-1.5 text-[13px] font-semibold text-[#7A4E22]">
+                    <Icon name="cup" className="coffee-cup size-4" />
+                    {t.schedule.coffee}
+                  </span>
+                ) : (
+                  <>
+                    <img src={r.s.logo} alt={r.s.name} className={`w-auto ${r.s.logoClass} ${r.s.logoInk ? "logo-ink" : ""}`} />
+                    <p className="mt-2 text-[14px] leading-snug text-ink-soft lg:text-[15px]">{r.s.desc[lang]}</p>
+                    {r.s.program && (
+                      <ul className="mt-3 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-1 2xl:grid-cols-2">
+                        {r.s.program.map((p) => (
+                          <li key={p.key} className="flex items-center gap-3 rounded-2xl border border-ink/[0.08] bg-paper/60 p-2.5">
+                            <span className="relative block size-9 shrink-0 overflow-hidden rounded-full bg-line">
+                              <Image src={p.img} alt="" fill sizes="36px" className="object-cover" />
+                            </span>
+                            <span className="min-w-0">
+                              <span className="block text-[13.5px] font-medium leading-tight text-ink">{t.schedule.program[p.key]}</span>
+                              <span className="mt-0.5 block text-[12.5px] text-ink-soft">{p.speaker}</span>
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}
+
 /* Replaces last year's photos: the partner logo on a quiet hairline grid with
    a slowly turning Rentlio mark, a giant start time, and a blue glow on hover. */
 function LogoStage({ w }: { w: Workshop }) {
@@ -436,7 +517,9 @@ function LogoStage({ w }: { w: Workshop }) {
   return (
     <div
       aria-hidden
-      className="relative order-1 h-36 overflow-hidden border-b border-ink/[0.08] sm:h-44 md:h-auto md:min-h-[300px] md:border-b-0 md:border-r"
+      className={`relative order-1 overflow-hidden border-b border-ink/[0.08] md:h-auto md:min-h-[300px] md:border-b-0 md:border-r ${
+        w.sessions ? "h-56" : "h-36 sm:h-44"
+      }`}
       style={{ background: "linear-gradient(160deg, #FBFCFD 0%, #EEF4F8 100%)" }}
     >
       <div
@@ -470,16 +553,22 @@ function LogoStage({ w }: { w: Workshop }) {
             {w.minutes} {t.schedule.minutes}
           </span>
         </span>
-        <span className="flex flex-col items-center gap-2 rounded-2xl bg-paper-pure/90 px-5 py-3.5 shadow-[0_24px_50px_-26px_rgba(10,10,15,0.4)] backdrop-blur-sm transition-transform duration-700 ease-premium group-hover:scale-[1.06] md:gap-2.5 md:px-6 md:py-4">
-          <img src={w.logo} alt="" className={`w-auto ${w.logoClass} ${w.logoInk ? "logo-ink" : ""}`} />
-          {/* Joint workshop: partner × Rentlio, Rentlio a touch smaller. */}
-          {w.withRentlio && (
+        <span className="flex flex-col items-center gap-2 rounded-2xl bg-paper-pure/90 px-4 py-3.5 shadow-[0_24px_50px_-26px_rgba(10,10,15,0.4)] backdrop-blur-sm transition-transform duration-700 ease-premium group-hover:scale-[1.06] md:gap-2.5 md:px-6 md:py-5">
+          {w.sessions ? (
+            // Joint workshop: Rentlio first, then its partners.
             <>
+              <img src="/rentlio-logo.svg" alt="" className="h-6 w-auto md:h-7" />
               <span className="flex items-center gap-2 text-[12px] leading-none text-ink-muted">
                 <span className="h-px w-4 bg-ink/15" />×<span className="h-px w-4 bg-ink/15" />
               </span>
-              <img src="/rentlio-logo.svg" alt="" className="h-[18px] w-auto lg:h-5" />
+              <span className="flex flex-col items-center gap-2.5 md:gap-3.5">
+                {w.sessions.slice(1).map((s) => (
+                  <img key={s.id} src={s.logo} alt="" className={`w-auto ${s.logoClass} ${s.logoInk ? "logo-ink" : ""}`} />
+                ))}
+              </span>
             </>
+          ) : (
+            <img src={w.logo} alt="" className={`w-auto ${w.logoClass} ${w.logoInk ? "logo-ink" : ""}`} />
           )}
         </span>
       </div>

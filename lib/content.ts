@@ -1,6 +1,7 @@
 /* All page content in one place.
    • WORKSHOPS — shared structure (times, logos) for every language.
    • copy      — workshop title + description per language (Dell: TBA).
+   • sessions  — Workshop 1's programme (Rentlio → Worldline → Seyfor → PHOBS).
    • dict      — every UI string in EN / HR / SLO. */
 
 export type Lang = "en" | "hr" | "sl";
@@ -18,8 +19,18 @@ export const EVENT_DATE_ISO = "2026-11-13"; // day after Rediscover (12. 11. 202
 export const PRIVACY_URL = "https://rediscover.rentl.io/en/privacy-policy";
 export const CONTACT_EMAIL = "rediscover@rentl.io";
 
-/* ───────── Workshops ───────── */
-export type WorkshopId = "rentlio" | "worldline" | "seyfor" | "phobs" | "smartness" | "lighthouse" | "dell";
+/** "09:15" → minutes since midnight. */
+export const toMin = (t: string) => {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+};
+
+/* ───────── Workshops ─────────
+   Four workshops. Workshop 1 (Dvorana Levant) is one joint workshop by Rentlio
+   and partners, run as a sequence of sessions; 2–4 are standalone partner
+   workshops in Tramontana / Maestral, in parallel with it. */
+export type WorkshopId = "rentlio" | "smartness" | "lighthouse" | "dell";
+export type SessionId = "rentlio" | "worldline" | "seyfor" | "phobs";
 
 /* Two parallel programmes ("tracks"), each in its own hall(s). */
 export type HallId = "levant" | "tramontana" | "maestral";
@@ -28,153 +39,145 @@ export type TrackId = "main" | "parallel";
 /** Workshop title + description per language. Paragraphs split on "\n". */
 export type Copy = Record<Lang, { title: string; body: string }>;
 
-export type Workshop = {
-  id: WorkshopId;
-  track: TrackId;
-  hall: HallId;
-  name: string;
-  /** Shorter label for the tight timetable blocks. */
-  short?: string;
+type LogoFields = {
   logo: string;
   /** Logo height class — logos have very different aspect ratios. */
   logoClass: string;
   /** PNG partner logos are white artwork → rendered in ink via CSS filter. */
   logoInk?: boolean;
-  /** Joint workshop with Rentlio → the card shows both logos. */
-  withRentlio?: boolean;
-  /** Logo size inside the small hero-orbit chips and the form options. */
+  /** Logo size inside the small hero-orbit chips. */
   chipLogoClass: string;
+};
+
+/** One part of Workshop 1's programme. */
+export type Session = LogoFields & {
+  id: SessionId;
+  name: string;
+  /** Shorter label for the tight timetable rows. */
+  short?: string;
+  start: string;
+  end: string;
+  /** One line on what this part covers. */
+  desc: Record<Lang, string>;
+  /** Speakers (confirmed for Rentlio Pro). */
+  program?: { key: "intro" | "deepdive"; speaker: string; img: string }[];
+};
+
+export type Workshop = LogoFields & {
+  id: WorkshopId;
+  /** "Radionica 1", "Radionica 2" … */
+  no: number;
+  track: TrackId;
+  hall: HallId;
+  name: string;
   start: string;
   end: string;
   minutes: number;
   /** Missing → the card shows "title/details coming soon". */
   copy?: Copy;
-  /** Optional agenda inside the workshop (confirmed for Rentlio Pro). */
-  program?: { key: "intro" | "deepdive"; speaker: string; img: string }[];
+  /** Joint workshop made of several sessions (Workshop 1). */
+  sessions?: Session[];
 };
 
 export const WORKSHOPS: Workshop[] = [
   {
     id: "rentlio",
+    no: 1,
     track: "main",
     hall: "levant",
-    name: "Rentlio Pro",
+    name: "Rentlio / Worldline / Seyfor / PHOBS",
     logo: "/rentlio-logo.svg",
     logoClass: "h-7 lg:h-8",
     chipLogoClass: "h-3 sm:h-4",
     start: "09:15",
-    end: "10:30",
-    minutes: 75,
+    end: "12:15",
+    minutes: 180,
     copy: {
       hr: {
-        title: "Rentlio Pro Deep Dive: Jednostavnije upravljanje hotelskim poslovanjem",
-        body: "Upoznajte Rentlio Pro, moderni cloud PMS za efikasno upravljanje svakodnevnim hotelskim operacijama. Radionica donosi konkretne primjere korištenja sustava te detaljniji pregled svih ključnih funkcionalnosti, a namijenjena je vlasnicima i menadžerima hotela te voditeljima hotelskih odjela. Nakon radionice slijede zajedničke radionice s integracijskim partnerima.",
+        title: "Rentlio Pro Deep Dive: Od hotelskih operacija do povezanog poslovanja",
+        body: "Upoznajte Rentlio Pro kroz pregled ključnih funkcionalnosti, konkretne primjere korištenja i mogućnosti povezivanja s drugim sustavima. Radionica započinje predstavljanjem Rentlio Pro platforme i detaljnim prikazom funkcionalnosti za upravljanje svakodnevnim hotelskim operacijama. Nakon toga slijedi predstavljanje Rentlio Pay rješenja u suradnji s Worldlineom, uz fokus na automatizaciju naplate i upravljanje plaćanjima.\nU nastavku će Seyfor Hrvatska prikazati cijeli proces računovodstvene integracije, uključujući obradu podataka u Minimaxu nakon njihova prijenosa iz Rentlija. Završni dio radionice posvećen je PHOBS rješenjima za hotelsku distribuciju i online prodaju te mogućnostima njihova povezivanja s Rentlio Pro platformom. Radionica je namijenjena hotelijerima koji žele detaljnije upoznati Rentlio Pro i saznati kako povezivanjem hotelskih operacija, plaćanja, računovodstva i distribucije mogu unaprijediti svoje poslovanje.",
       },
       en: {
-        title: "Rentlio Pro Deep Dive: Hotel Operations Simplified",
-        body: "Discover Rentlio Pro, a modern cloud-based PMS designed to streamline everyday hotel operations. This workshop will showcase practical use cases and provide an in-depth look at the system's key features. It is designed for hotel owners, general managers, and department heads. The session will be followed by joint workshops with Rentlio's integration partners.",
+        title: "Rentlio Pro Deep Dive: From Hotel Operations to Connected Business Processes",
+        body: "Explore Rentlio Pro through an overview of its key features, practical use cases, and integration options with other systems. The workshop begins with an introduction to Rentlio Pro, followed by a detailed look at the features designed to manage daily hotel operations.\nNext, Rentlio and Worldline will present Rentlio Pay, focusing on payment automation and payment management. Seyfor Hrvatska will then demonstrate the complete accounting integration process, including how data is processed in Minimax after being transferred from Rentlio. The final part of the workshop will focus on PHOBS solutions for hotel distribution and online sales, including integration options with Rentlio Pro. This workshop is designed for hoteliers who want to explore Rentlio Pro in greater detail and learn how connecting hotel operations, payments, accounting, and distribution can improve their business performance.",
       },
       sl: {
-        title: "Rentlio Pro Deep Dive: Enostavnejše upravljanje hotelskega poslovanja",
-        body: "Spoznajte Rentlio Pro, sodoben PMS v oblaku, zasnovan za učinkovito upravljanje vsakodnevnih hotelskih operacij. Na delavnici bodo predstavljeni praktični primeri uporabe sistema in podrobnejši pregled vseh ključnih funkcionalnosti. Namenjena je lastnikom in direktorjem hotelov ter vodjem hotelskih oddelkov. Delavnici bodo sledile skupne delavnice z Rentlijevimi integracijskimi partnerji.",
+        title: "Rentlio Pro Deep Dive: Od hotelskih operacij do povezanega poslovanja",
+        body: "Spoznajte Rentlio Pro skozi pregled ključnih funkcionalnosti, praktičnih primerov uporabe in možnosti povezovanja z drugimi sistemi. Delavnica se začne s predstavitvijo platforme Rentlio Pro in podrobnim pregledom funkcionalnosti za upravljanje vsakodnevnih hotelskih operacij.\nSledi predstavitev rešitve Rentlio Pay v sodelovanju s podjetjem Worldline, s poudarkom na avtomatizaciji obračunavanja in upravljanju plačil. V nadaljevanju bo Seyfor Hrvatska predstavil celoten postopek računovodske integracije, vključno z obdelavo podatkov v programu Minimax po njihovem prenosu iz Rentlia. Zaključni del delavnice bo namenjen rešitvam PHOBS za hotelsko distribucijo in spletno prodajo ter možnostim njihove povezave s platformo Rentlio Pro. Delavnica je namenjena hotelirjem, ki želijo podrobneje spoznati Rentlio Pro in izvedeti, kako lahko s povezovanjem hotelskih operacij, plačil, računovodstva in distribucije izboljšajo svoje poslovanje.",
       },
     },
-    program: [
-      { key: "intro", speaker: "Marko Mišulić", img: "/speakers/marko-misulic.jpg" },
-      { key: "deepdive", speaker: "Pankracije Barać", img: "/speakers/pankracije-barac.jpg" },
+    sessions: [
+      {
+        id: "rentlio",
+        name: "Rentlio Pro",
+        logo: "/rentlio-logo.svg",
+        logoClass: "h-5",
+        chipLogoClass: "h-3 sm:h-4",
+        start: "09:15",
+        end: "10:30",
+        desc: {
+          hr: "Predstavljanje platforme i detaljan prikaz funkcionalnosti",
+          en: "Platform introduction and product deep dive",
+          sl: "Predstavitev platforme in podroben prikaz funkcionalnosti",
+        },
+        program: [
+          { key: "intro", speaker: "Marko Mišulić", img: "/speakers/marko-misulic.jpg" },
+          { key: "deepdive", speaker: "Pankracije Barać", img: "/speakers/pankracije-barac.jpg" },
+        ],
+      },
+      {
+        id: "worldline",
+        name: "Worldline · Rentlio Pay",
+        short: "Worldline",
+        logo: "/partners/worldline.png",
+        logoClass: "h-3 md:h-[15px]",
+        logoInk: true,
+        chipLogoClass: "h-2.5 sm:h-3.5",
+        start: "10:45",
+        end: "11:15",
+        desc: {
+          hr: "Rentlio Pay: automatizacija naplate i upravljanje plaćanjima",
+          en: "Rentlio Pay: payment automation and payment management",
+          sl: "Rentlio Pay: avtomatizacija obračunavanja in upravljanje plačil",
+        },
+      },
+      {
+        id: "seyfor",
+        name: "Seyfor Hrvatska",
+        short: "Seyfor",
+        logo: "/partners/seyfor.png",
+        logoClass: "h-5 md:h-6",
+        logoInk: true,
+        chipLogoClass: "h-4 sm:h-5",
+        start: "11:15",
+        end: "11:45",
+        desc: {
+          hr: "Računovodstvena integracija s Minimaxom",
+          en: "Accounting integration with Minimax",
+          sl: "Računovodska integracija z Minimaxom",
+        },
+      },
+      {
+        id: "phobs",
+        name: "PHOBS",
+        logo: "/partners/phobs.svg",
+        logoClass: "h-[15px] md:h-[18px]",
+        logoInk: true,
+        chipLogoClass: "h-3 sm:h-4",
+        start: "11:45",
+        end: "12:15",
+        desc: {
+          hr: "Hotelska distribucija i online prodaja",
+          en: "Hotel distribution and online sales",
+          sl: "Hotelska distribucija in spletna prodaja",
+        },
+      },
     ],
   },
-  {
-    id: "worldline",
-    track: "main",
-    hall: "levant",
-    name: "Worldline × Rentlio",
-    short: "Worldline",
-    logo: "/partners/worldline.png",
-    logoClass: "h-[18px] lg:h-5",
-    logoInk: true,
-    withRentlio: true,
-    chipLogoClass: "h-2.5 sm:h-3.5",
-    start: "10:45",
-    end: "11:15",
-    minutes: 30,
-    copy: {
-      hr: {
-        title: "Rentlio Pay: Automatizirana naplata rezervacija i potpuna kontrola naplate",
-        body: "Nastavak radionice Rentlio Pro Deep Dive na kojem će predstavnici kompanije Worldline i Rentlio zajedno predstaviti Rentlio Pay – proizvod koji u potpunosti automatizira naplatu rezervacija i pruža funkcionalnosti koje uklanjaju potrebu za ručnim radom i štede zaposlenicima vrijeme.",
-      },
-      en: {
-        title: "Rentlio Pay: Automated Reservation Payments and Full Control Over Payment Management",
-        body: "Building on the Rentlio Pro Deep Dive session, representatives from Worldline and Rentlio will introduce Rentlio Pay, a solution that fully automates reservation payments and offers features designed to eliminate manual tasks and save hotel staff valuable time.",
-      },
-      sl: {
-        title: "Rentlio Pay: Avtomatizirana plačila rezervacij in popoln nadzor nad plačili",
-        body: "Na nadaljevanju delavnice Rentlio Pro Deep Dive bodo predstavniki podjetij Worldline in Rentlio skupaj predstavili Rentlio Pay – rešitev, ki v celoti avtomatizira plačila rezervacij ter ponuja funkcionalnosti, ki odpravljajo potrebo po ročnem delu in hotelskemu osebju prihranijo dragocen čas.",
-      },
-    },
-  },
-  {
-    id: "seyfor",
-    track: "main",
-    hall: "levant",
-    name: "Seyfor × Rentlio",
-    short: "Seyfor",
-    logo: "/partners/seyfor.png",
-    logoClass: "h-8 lg:h-9",
-    logoInk: true,
-    withRentlio: true,
-    chipLogoClass: "h-4 sm:h-5",
-    start: "11:15",
-    end: "11:45",
-    minutes: 30,
-    copy: {
-      hr: {
-        title: "Povezani sustavi, jednostavnije računovodstvo: Rentlio Pro i Minimax",
-        body: "Radionica donosi uvid u cijeli proces računovodstvene integracije, uključujući obradu podataka u alatu Minimax nakon njihova prijenosa iz Rentlio Pro PMS-a. Cilj radionice je pokazati da integracija s računovodstvenim sustavom ne mora biti složena te sudionicima približiti njezino funkcioniranje i konkretne koristi za poslovanje.",
-      },
-      en: {
-        title: "Connected Systems, Simpler Accounting: Rentlio Pro and Minimax",
-        body: "This workshop will walk participants through the entire accounting integration process, including how data is processed in Minimax after being transferred from Rentlio Pro PMS. The goal is to demonstrate that integrating with an accounting system doesn't have to be complicated, while providing a clear understanding of how the integration works and the practical benefits it brings to hotel operations.",
-      },
-      sl: {
-        title: "Povezani sistemi, enostavnejše računovodstvo: Rentlio Pro in Minimax",
-        body: "Delavnica ponuja vpogled v celoten proces računovodske integracije, vključno z obdelavo podatkov v programu Minimax po njihovem prenosu iz sistema Rentlio Pro PMS. Cilj delavnice je pokazati, da povezovanje z računovodskim sistemom ni nujno zapleteno, ter udeležencem predstaviti, kako integracija deluje in kakšne konkretne koristi prinaša njihovemu poslovanju.",
-      },
-    },
-  },
-  {
-    id: "phobs",
-    track: "main",
-    hall: "levant",
-    name: "PHOBS × Rentlio",
-    short: "PHOBS",
-    logo: "/partners/phobs.svg",
-    logoClass: "h-[22px] lg:h-6",
-    logoInk: true,
-    withRentlio: true,
-    chipLogoClass: "h-3 sm:h-4",
-    start: "11:45",
-    end: "12:15",
-    minutes: 30,
-    copy: {
-      hr: {
-        title: "Kako funkcionira hotelska distribucija u praksi",
-        body: "U fokusu radionice bit će PHOBS rješenja za hotelsku distribuciju i online prodaju te mogućnosti njihove integracije s Rentlio Pro PMS-om. Saznajte kako optimizirati online prodaju, iskoristiti prodajne kanale i stvoriti prilike za povećanje hotelskih prihoda.",
-      },
-      en: {
-        title: "How Hotel Distribution Works in Practice",
-        body: "This workshop will focus on PHOBS solutions for hotel distribution and online sales, as well as their integration capabilities with Rentlio Pro PMS. Discover how to optimize online sales, make the most of your distribution channels, and create new opportunities to increase hotel revenue.",
-      },
-      sl: {
-        title: "Kako deluje hotelska distribucija v praksi",
-        body: "Delavnica bo osredotočena na rešitve PHOBS za hotelsko distribucijo in spletno prodajo ter možnosti njihove integracije s sistemom Rentlio Pro PMS. Spoznajte, kako optimizirati spletno prodajo, bolje izkoristiti prodajne kanale in ustvariti nove priložnosti za povečanje prihodkov vašega hotela.",
-      },
-    },
-  },
-  // ─── Parallel track (Tramontana / Maestral), runs alongside Dvorana Levant.
-  //     Halls alternate so the next workshop can set up between sessions. ───
+  // ─── Parallel track (Tramontana / Maestral), runs alongside Dvorana Levant. ───
   {
     id: "smartness",
+    no: 2,
     track: "parallel",
     hall: "tramontana",
     name: "Smartness",
@@ -201,6 +204,7 @@ export const WORKSHOPS: Workshop[] = [
   },
   {
     id: "lighthouse",
+    no: 3,
     track: "parallel",
     hall: "maestral",
     name: "Lighthouse",
@@ -228,6 +232,7 @@ export const WORKSHOPS: Workshop[] = [
   },
   {
     id: "dell",
+    no: 4,
     track: "parallel",
     hall: "tramontana",
     name: "Dell & ComTel",
@@ -238,23 +243,32 @@ export const WORKSHOPS: Workshop[] = [
     start: "11:35",
     end: "12:20",
     minutes: 45,
-    // copy: details coming soon
+    // copy: title and details coming soon
   },
 ];
 
-/** Coffee break for all halls; shown after these workshops in the card list. */
-export const BREAK = { after: ["rentlio", "smartness"] as WorkshopId[], start: "10:30", end: "10:45" };
+/** Coffee break for all halls. Workshop 1 shows it inside its programme; in
+    the parallel card list it sits after these workshops. */
+export const BREAK = { after: ["smartness"] as WorkshopId[], start: "10:30", end: "10:45" };
+
+/** Every logo for the hero orbit, in time order (Workshop 1 → its sessions). */
+export const ORBIT_ITEMS = WORKSHOPS.flatMap((w) =>
+  (w.sessions ?? [w]).map((x) => ({
+    key: w.sessions ? `${w.id}-${x.id}` : w.id,
+    workshop: w.id,
+    name: x.name,
+    logo: x.logo,
+    logoInk: x.logoInk,
+    chipLogoClass: x.chipLogoClass,
+    start: x.start,
+  })),
+).sort((a, b) => toMin(a.start) - toMin(b.start));
 
 export const TRACKS: { id: TrackId; halls: HallId[] }[] = [
   { id: "main", halls: ["levant"] },
   { id: "parallel", halls: ["tramontana", "maestral"] },
 ];
 
-/** "09:15" → minutes since midnight. */
-export const toMin = (t: string) => {
-  const [h, m] = t.split(":").map(Number);
-  return h * 60 + m;
-};
 /** Earliest start / latest end across all workshops. */
 export const DAY_START = WORKSHOPS.reduce((a, w) => (toMin(w.start) < toMin(a) ? w.start : a), WORKSHOPS[0].start);
 export const DAY_END = WORKSHOPS.reduce((a, w) => (toMin(w.end) > toMin(a) ? w.end : a), WORKSHOPS[0].end);
@@ -285,6 +299,7 @@ export type Dict = {
     until: string;
     register: string;
     programLabel: string;
+    workshopNo: (n: number) => string;
     program: { intro: string; deepdive: string };
     halls: Record<HallId, string>;
     tracks: Record<TrackId, { title: string; subtitle: string }>;
@@ -349,7 +364,8 @@ const hr: Dict = {
     minutes: "min",
     until: "do",
     register: "Prijavite se",
-    programLabel: "Program",
+    programLabel: "Program radionice",
+    workshopNo: (n) => `Radionica ${n}`,
     program: { intro: "High level intro", deepdive: "Product deep dive" },
     halls: { levant: "Dvorana Levant", tramontana: "Dvorana Tramontana", maestral: "Dvorana Maestral" },
     tracks: {
@@ -421,7 +437,8 @@ const en: Dict = {
     minutes: "min",
     until: "until",
     register: "Register",
-    programLabel: "Program",
+    programLabel: "Workshop programme",
+    workshopNo: (n) => `Workshop ${n}`,
     program: { intro: "High level intro", deepdive: "Product deep dive" },
     halls: { levant: "Levant Hall", tramontana: "Tramontana Hall", maestral: "Maestral Hall" },
     tracks: {
@@ -493,7 +510,8 @@ const sl: Dict = {
     minutes: "min",
     until: "do",
     register: "Prijavite se",
-    programLabel: "Program",
+    programLabel: "Program delavnice",
+    workshopNo: (n) => `Delavnica ${n}`,
     program: { intro: "High level intro", deepdive: "Product deep dive" },
     halls: { levant: "Dvorana Levant", tramontana: "Dvorana Tramontana", maestral: "Dvorana Maestral" },
     tracks: {
