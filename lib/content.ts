@@ -89,8 +89,8 @@ export const WORKSHOPS: Workshop[] = [
     logo: "/rentlio-logo.svg",
     logoClass: "h-7 lg:h-8",
     chipLogoClass: "h-3 sm:h-4",
-    start: "09:15",
-    end: "12:15",
+    start: "09:30",
+    end: "12:30",
     minutes: 180,
     copy: {
       hr: {
@@ -106,6 +106,7 @@ export const WORKSHOPS: Workshop[] = [
         body: "Spoznajte Rentlio Pro skozi pregled ključnih funkcionalnosti, praktičnih primerov uporabe in možnosti povezovanja z drugimi sistemi. Delavnica se začne s predstavitvijo platforme Rentlio Pro in podrobnim pregledom funkcionalnosti za upravljanje vsakodnevnih hotelskih operacij.\nSledi predstavitev rešitve Rentlio Pay v sodelovanju s podjetjem Worldline, s poudarkom na avtomatizaciji obračunavanja in upravljanju plačil. V nadaljevanju bo Seyfor Hrvatska predstavil celoten postopek računovodske integracije, vključno z obdelavo podatkov v programu Minimax po njihovem prenosu iz Rentlia. Zaključni del delavnice bo namenjen rešitvam PHOBS za hotelsko distribucijo in spletno prodajo ter možnostim njihove povezave s platformo Rentlio Pro. Delavnica je namenjena hotelirjem, ki želijo podrobneje spoznati Rentlio Pro in izvedeti, kako lahko s povezovanjem hotelskih operacij, plačil, računovodstva in distribucije izboljšajo svoje poslovanje.",
       },
     },
+    // TODO confirm: split of the partner slots after the break (assumed 3 × 35 min).
     sessions: [
       {
         id: "rentlio",
@@ -113,7 +114,7 @@ export const WORKSHOPS: Workshop[] = [
         logo: "/rentlio-logo.svg",
         logoClass: "h-5",
         chipLogoClass: "h-3 sm:h-4",
-        start: "09:15",
+        start: "09:30",
         end: "10:30",
         desc: {
           hr: "Predstavljanje platforme i detaljan prikaz funkcionalnosti",
@@ -134,7 +135,7 @@ export const WORKSHOPS: Workshop[] = [
         logoInk: true,
         chipLogoClass: "h-2.5 sm:h-3.5",
         start: "10:45",
-        end: "11:15",
+        end: "11:20",
         desc: {
           hr: "Rentlio Pay: automatizacija naplate i upravljanje plaćanjima",
           en: "Rentlio Pay: payment automation and payment management",
@@ -149,8 +150,8 @@ export const WORKSHOPS: Workshop[] = [
         logoClass: "h-5 md:h-6",
         logoInk: true,
         chipLogoClass: "h-4 sm:h-5",
-        start: "11:15",
-        end: "11:45",
+        start: "11:20",
+        end: "11:55",
         desc: {
           hr: "Računovodstvena integracija s Minimaxom",
           en: "Accounting integration with Minimax",
@@ -164,8 +165,8 @@ export const WORKSHOPS: Workshop[] = [
         logoClass: "h-[15px] md:h-[18px]",
         logoInk: true,
         chipLogoClass: "h-3 sm:h-4",
-        start: "11:45",
-        end: "12:15",
+        start: "11:55",
+        end: "12:30",
         desc: {
           hr: "Hotelska distribucija i online prodaja",
           en: "Hotel distribution and online sales",

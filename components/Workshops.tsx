@@ -223,6 +223,7 @@ function Timetable({ active, compact = false }: { active: WorkshopId; compact?: 
   const span = to - from;
   const pct = (m: number) => ((m - from) / span) * 100;
   const hours: number[] = [];
+  if (from % 60) hours.push(from); // label the axis start when it's a half hour
   for (let m = Math.ceil(from / 60) * 60; m <= to; m += 60) hours.push(m);
   const fmt = (m: number) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
   const activeW = WORKSHOPS.find((w) => w.id === active)!;
