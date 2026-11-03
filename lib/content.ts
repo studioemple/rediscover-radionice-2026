@@ -238,7 +238,12 @@ export const WORKSHOPS: Workshop[] = [
     start: "11:35",
     end: "12:20",
     minutes: 45,
-    // copy: title and details coming soon
+    // Details still to come — placeholder copy until Dell sends theirs.
+    copy: {
+      hr: { title: "DELL radionica – više detalja uskoro", body: "Detalji radionice bit će uskoro objavljeni." },
+      en: { title: "DELL workshop – more details coming soon", body: "Workshop details will be announced soon." },
+      sl: { title: "Delavnica DELL – več podrobnosti kmalu", body: "Podrobnosti delavnice bodo objavljene kmalu." },
+    },
   },
 ];
 
