@@ -214,7 +214,8 @@ function TrackHeader({ track, list }: { track: TrackId; list: Workshop[] }) {
 }
 
 /* Two-column timetable: Dvorana Levant | Tramontana & Maestral. Blocks are
-   placed on a shared time axis, so what runs in parallel sits side by side. */
+   placed on a shared time axis (no hour labels — each block shows its own
+   time), so what runs in parallel sits side by side. */
 function Timetable({ active, compact = false }: { active: WorkshopId; compact?: boolean }) {
   const { t } = useLang();
   // Axis: round the day out to whole/half hours.
@@ -222,11 +223,6 @@ function Timetable({ active, compact = false }: { active: WorkshopId; compact?: 
   const to = Math.ceil(toMin(DAY_END) / 30) * 30;
   const span = to - from;
   const pct = (m: number) => ((m - from) / span) * 100;
-  const hours: number[] = [];
-  if (from % 60) hours.push(from); // label the axis start when it's a half hour
-  for (let m = Math.ceil(from / 60) * 60; m <= to; m += 60) hours.push(m);
-  const fmt = (m: number) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
-  const activeW = WORKSHOPS.find((w) => w.id === active)!;
 
   return (
     <div data-timetable className="overflow-hidden rounded-2xl border border-ink/10 bg-paper-pure/85 shadow-[0_30px_70px_-50px_rgba(10,10,15,0.35)] backdrop-blur-sm">
@@ -243,8 +239,7 @@ function Timetable({ active, compact = false }: { active: WorkshopId; compact?: 
       </div>
 
       {/* Column headers: one per hall group. */}
-      <div className="grid grid-cols-[38px_1fr_1fr] gap-x-2 border-b border-ink/[0.08] bg-paper/70 px-3 py-2.5">
-        <span aria-hidden />
+      <div className="grid grid-cols-2 gap-x-2 border-b border-ink/[0.08] bg-paper/70 px-3 py-2.5">
         {TRACKS.map((tr) => (
           <p key={tr.id} className="font-display text-[12px] font-semibold leading-[1.25] text-ink">
             {t.schedule.tracks[tr.id].title}
@@ -254,34 +249,16 @@ function Timetable({ active, compact = false }: { active: WorkshopId; compact?: 
 
       <div className="px-3 py-4">
       <div
-        className={`relative grid grid-cols-[38px_1fr_1fr] gap-x-2 ${
+        className={`relative grid grid-cols-2 gap-x-2 ${
           compact ? "h-[520px] sm:h-[560px]" : "h-[540px] [@media(max-height:860px)]:h-[440px]"
         }`}
       >
         {/* Day columns */}
         {TRACKS.map((tr, col) => (
-          <span key={tr.id} aria-hidden className="pointer-events-none -my-2 rounded-lg bg-ink/[0.025]" style={{ gridColumn: col + 2, gridRow: 1 }} />
+          <span key={tr.id} aria-hidden className="pointer-events-none -my-2 rounded-lg bg-ink/[0.025]" style={{ gridColumn: col + 1, gridRow: 1 }} />
         ))}
-        {/* Hour lines + labels */}
-        <div aria-hidden className="pointer-events-none absolute inset-0">
-          {hours.map((m) => (
-            <div key={m} className="absolute inset-x-0 flex items-center gap-2" style={{ top: `${pct(m)}%` }}>
-              <span className="font-display w-[38px] -translate-y-1/2 text-[11px] font-medium tabular-nums text-ink-muted">{fmt(m)}</span>
-              <span className="h-px flex-1 -translate-y-1/2 border-t border-dashed border-ink/[0.12]" />
-            </div>
-          ))}
-          {/* Playhead: start time of the workshop you're reading. */}
-          <div
-            className="absolute inset-x-0 flex items-center transition-[top] duration-700 ease-premium"
-            style={{ top: `${pct(toMin(activeW.start))}%` }}
-          >
-            <span className="ml-[30px] size-2 -translate-y-1/2 rounded-full bg-blue" />
-            <span className="h-px flex-1 -translate-y-1/2 bg-blue/40" />
-          </div>
-        </div>
-
         {TRACKS.map((tr, col) => (
-          <div key={tr.id} className="relative" style={{ gridColumn: col + 2, gridRow: 1 }}>
+          <div key={tr.id} className="relative" style={{ gridColumn: col + 1, gridRow: 1 }}>
             {byTrack(tr.id).map((w) => {
               const on = w.id === active;
               const top = pct(toMin(w.start));
@@ -319,7 +296,7 @@ function Timetable({ active, compact = false }: { active: WorkshopId; compact?: 
                           height: `${((toMin(s.end) - toMin(s.start)) / len) * 100}%`,
                         }}
                       >
-                                                <span className="block truncate text-[12.5px] font-semibold leading-tight">{s.short ?? s.name}</span>
+                        <span className="block truncate text-[12.5px] font-semibold leading-tight">{s.short ?? s.name}</span>
                         {time(s.start, s.end)}
                       </span>
                     ))
@@ -336,7 +313,7 @@ function Timetable({ active, compact = false }: { active: WorkshopId; compact?: 
         ))}
 
         {/* Coffee break for everyone → spans both hall columns. */}
-        <div className="pointer-events-none relative" style={{ gridColumn: "2 / 4", gridRow: 1 }}>
+        <div className="pointer-events-none relative" style={{ gridColumn: "1 / 3", gridRow: 1 }}>
           <span
             className="tt-block absolute inset-x-0 z-20 flex items-center justify-center gap-2 overflow-hidden rounded-xl border border-[#E9CFAE] bg-[#FBF1E4] px-2.5 text-[12px] font-semibold text-[#7A4E22] shadow-[0_10px_24px_-18px_rgba(122,78,34,0.7)]"
             style={{

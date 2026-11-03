@@ -19,7 +19,7 @@ Next.js 15 · React 19 · Tailwind 3 · GSAP. Nema env varijabli.
   - `WORKSHOPS` — termini, dvorane, logotipi te naslovi i opisi radionica (`copy`, EN / HR / SLO).
     Radionica 1 (Dvorana Levant) je jedna zajednička radionica: njezini dijelovi
     (Rentlio Pro → Worldline → Seyfor → PHOBS) su u `sessions`.
-    Dell & ComTel još nema tekst (`copy` izostavljen → prikazuje se „Detalji radionice uskoro”).
+    Radionica bez `copy` prikazuje „Naziv radionice stiže uskoro” (placeholder).
   - `dictionaries` — svi tekstovi sučelja za EN / HR / SLO.
   - `DEFAULT_LANG` — zadani jezik (trenutno HR).
 - **Za potvrditi:** datum (13. 11. 2026.) i lokacija (Hotel Iadera) — postavljeni

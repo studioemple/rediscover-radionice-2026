@@ -1,6 +1,6 @@
 /* All page content in one place.
    • WORKSHOPS — shared structure (times, logos) for every language.
-   • copy      — workshop title + description per language (Dell: TBA).
+   • copy      — workshop title + description per language (no copy → "coming soon" placeholder).
    • sessions  — Workshop 1's programme (Rentlio → Worldline → Seyfor → PHOBS).
    • dict      — every UI string in EN / HR / SLO. */
 
@@ -238,11 +238,19 @@ export const WORKSHOPS: Workshop[] = [
     start: "11:35",
     end: "12:20",
     minutes: 45,
-    // Details still to come — placeholder copy until Dell sends theirs.
     copy: {
-      hr: { title: "DELL radionica – više detalja uskoro", body: "Detalji radionice bit će uskoro objavljeni." },
-      en: { title: "DELL workshop – more details coming soon", body: "Workshop details will be announced soon." },
-      sl: { title: "Delavnica DELL – več podrobnosti kmalu", body: "Podrobnosti delavnice bodo objavljene kmalu." },
+      hr: {
+        title: "Vaš prvi AI korak: praktični primjeri za hotele, kampove i iznajmljivače",
+        body: "AI više nije rezerviran samo za globalne hotelske lance. Na ovoj praktičnoj radionici Dell Technologies pokazuje kako hoteli, resorti, kampovi i iznajmljivači već danas mogu koristiti AI da brže i osobnije odgovaraju gostima, pametnije postavljaju cijene, bolje organiziraju housekeeping i smanje rutinski posao. Bez tehničkog žargona, kroz 7 konkretnih primjera iz hospitalityja i jednostavan okvir za odabir vašeg prvog AI koraka. Dođite s jednim izazovom iz svog objekta, a otiđite s idejom koju možete primijeniti do sljedeće sezone.",
+      },
+      en: {
+        title: "Your First AI Step: Practical Use Cases for Hotels, Camps and Rentals",
+        body: "AI is no longer reserved for global hotel chains. In this practical workshop, Dell Technologies shows how hotels, resorts, camps and vacation-rental businesses can already use AI to respond to guests faster and more personally, price more intelligently, organise housekeeping better and cut repetitive work. No technical jargon, just 7 real-world hospitality examples and a simple framework for choosing your first AI step. Bring one challenge from your property and leave with an idea you can put into practice before next season.",
+      },
+      sl: {
+        title: "Vaš prvi korak v svet umetne inteligence: praktični primeri za hotele, kampe in ponudnike nastanitev",
+        body: "Umetna inteligenca ni več rezervirana le za velike mednarodne hotelske verige. Na tej praktični delavnici bo Dell Technologies predstavil, kako lahko hoteli, letovišča, kampi in ponudniki nastanitev že danes uporabljajo umetno inteligenco za hitrejšo in bolj osebno komunikacijo z gosti, učinkovitejše oblikovanje cen, boljšo organizacijo čiščenja in manj rutinskega dela.\nBrez tehničnega žargona, s sedmimi konkretnimi primeri iz turizma in gostinstva ter preprostim pristopom k izbiri prvega koraka pri uvajanju umetne inteligence. Na delavnico pridite z enim izzivom iz svojega nastanitvenega objekta, odšli pa boste z idejo, ki jo lahko uresničite že do naslednje sezone.",
+      },
     },
   },
 ];
